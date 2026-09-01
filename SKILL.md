@@ -29,7 +29,7 @@ description: 根据汽车相关项定义文档（.docx / 旧 .doc）自动生成
 
 脚本按域懒加载当前查询所需资产。PT 已禁止回退到旧总表或全局 SEC 参考库；Agent 只读取当前域与当前功能 Profile，不加载全量场景表。
 
-> **开发/资产发布前校验（非 Aily 生产工作流）**：`scripts/tools/validate_scenario_assets.py` 仅用于本地维护时校验拆分后的场景资产与旧总表的迁移一致性。它不参与 `DOCX → S1 → S2 → S3 → S4 → S5 → Excel` 正式链路；Aily 生产部署包无需包含 `scripts/tools/`，Agent 也不得在单次 HARA 任务中调用该脚本。
+> **开发/资产发布前校验（非 Aily 生产工作流）**：场景资产迁移校验工具只保留在开发源仓库，不属于本生产部署包。它不参与 `DOCX → S1 → S2 → S3 → S4 → S5 → Excel` 正式链路，Agent 不得在单次 HARA 任务中调用开发维护工具。
 
 **最终产物必须包含 5 个数据 Sheet**：相关项功能清单 + 失效模式选择 + HAZOP 分析 + HARA 分析 + 整车安全目标。其中整车安全目标通过 `sg generate` + `write --s5` 生成（ET 等全 QM 域可能为 0 条，但命令仍须执行）。模板中其余 Sheet（封面、版本管理、命名规则、参考场景、评定参考、ASIL 判定等）保持原样不动，只在上述数据 Sheet 中填写数据。
 
