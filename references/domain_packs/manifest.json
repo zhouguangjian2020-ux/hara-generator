@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "description": "统一域知识包清单。运行时只加载当前域 Pack；参考 Excel 仅用于离线沉淀知识，不作为运行时格式或布局规则。",
+  "schema_file": "schema.json",
+  "domain_files": {
+    "CS": "CS.json",
+    "CB": "CB.json",
+    "PT": "PT.json",
+    "AD": "AD.json",
+    "ET": "ET.json",
+    "BD": "BD.json"
+  },
+  "domain_aliases": {
+    "P": "PT",
+    "POWERTRAIN": "PT",
+    "PT": "PT",
+    "A": "AD",
+    "ADAS": "AD",
+    "AD": "AD",
+    "Info": "ET",
+    "INFOTAINMENT": "ET",
+    "ET": "ET",
+    "B": "BD",
+    "BODY": "BD",
+    "BD": "BD",
+    "CB": "CB",
+    "CHASSIS_BRAKE": "CB",
+    "CS": "CS",
+    "CHASSIS_STEERING": "CS"
+  },
+  "target_sheets": [
+    "相关项功能清单",
+    "失效模式",
+    "HAZOP 分析",
+    "HARA 分析",
+    "整车安全目标"
+  ],
+  "runtime_policy": {
+    "known_exact": "脚本锁定已批准结论；Agent 仅核对输入边界。",
+    "compatible": "脚本提供受控基线；Agent 只能回答明确的差异问题。",
+    "unknown": "不得静默套用基线；必须标记工程复核。"
+  }
+}
+

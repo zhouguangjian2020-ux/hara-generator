@@ -1,0 +1,60 @@
+{
+  "schema_version": "pt_function_aliases.v1",
+  "policy": "只按功能名称、子功能和语义证据匹配；来源 ID 不是匹配键。",
+  "families": {
+    "pt_gear_state_control": {
+      "name_patterns": [
+        "档位控制及显示功能",
+        "档位控制及显示",
+        "档位控制"
+      ],
+      "default_semantic_role": null
+    },
+    "pt_hv_power_state_management": {
+      "name_patterns": [
+        "整车高压上下电管理"
+      ],
+      "default_semantic_role": null
+    },
+    "pt_thermal_management": {
+      "name_patterns": [
+        "车辆热管理功能",
+        "整车热管理功能"
+      ],
+      "default_semantic_role": null
+    },
+    "pt_traction_torque_control": {
+      "name_patterns": [
+        "车辆驱动控制",
+        "车辆扭矩控制",
+        "车辆驱动控制功能",
+        "能量回收功能",
+        "制动能量回收"
+      ],
+      "default_semantic_role": null
+    },
+    "pt_charge_discharge": {
+      "name_patterns": [
+        "充放电功能",
+        "充放电控制"
+      ],
+      "default_semantic_role": null
+    },
+    "pt_hv_safety": {
+      "name_patterns": [
+        "高压安全"
+      ],
+      "default_semantic_role": null
+    },
+    "pt_energy_range_display": {
+      "name_patterns": [
+        "车辆能耗及续航显示功能",
+        "续驶里程和电耗显示"
+      ],
+      "default_semantic_role": "energy_range_display_only"
+    }
+  },
+  "unresolved_names": [
+    "动力防盗功能"
+  ]
+}

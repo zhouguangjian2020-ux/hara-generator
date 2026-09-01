@@ -1,0 +1,379 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hara-generator://case-library/schema-v2",
+  "title": "HARA Semantic Case Library v2",
+  "description": "项目无关的 HARA 参考案例资产。运行时匹配只能使用语义字段，禁止依赖项目功能编号、失效编号或排序。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "domain",
+    "function_profile",
+    "failure_profile",
+    "hazard_profile",
+    "scenario_profile",
+    "assessment",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "案例资产自身的稳定引用 ID；不是项目功能 ID，不参与语义匹配。"
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "PT",
+        "CS",
+        "CB",
+        "AD",
+        "ET",
+        "BD"
+      ],
+      "description": "canonical domain。输入侧 P/A/B/Info 等别名必须在进入案例库前标准化。"
+    },
+    "function_profile": {
+      "$ref": "#/$defs/function_profile"
+    },
+    "failure_profile": {
+      "$ref": "#/$defs/failure_profile"
+    },
+    "hazard_profile": {
+      "$ref": "#/$defs/hazard_profile"
+    },
+    "scenario_profile": {
+      "$ref": "#/$defs/scenario_profile"
+    },
+    "event_description": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "description": "权威案例中的完整危害事件描述；S3 已选择 source case 时由 S4 原样锁定复用，不由 Agent 重写。"
+    },
+    "assessment": {
+      "$ref": "#/$defs/assessment"
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    }
+  },
+  "$defs": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "string_array": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/non_empty_string"
+      },
+      "uniqueItems": true
+    },
+    "function_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_function_family",
+        "semantic_roles",
+        "controlled_objects",
+        "capability_tokens"
+      ],
+      "properties": {
+        "canonical_function_family": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "由 Domain Pack 维护的稳定功能族，不依赖项目编号或功能排序。"
+        },
+        "semantic_roles": {
+          "$ref": "#/$defs/string_array",
+          "minItems": 1
+        },
+        "controlled_objects": {
+          "$ref": "#/$defs/string_array"
+        },
+        "capability_tokens": {
+          "$ref": "#/$defs/string_array",
+          "minItems": 1
+        }
+      }
+    },
+    "failure_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_mode",
+        "anomaly_class",
+        "anomaly_aliases"
+      ],
+      "properties": {
+        "canonical_mode": {
+          "type": "string",
+          "enum": [
+            "丢失",
+            "非预期",
+            "间歇",
+            "过多",
+            "过少",
+            "过早",
+            "反向",
+            "振荡",
+            "部分",
+            "过晚",
+            "卡滞"
+          ]
+        },
+        "anomaly_class": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "规范化异常类别；不得直接使用项目原文作为唯一键。"
+        },
+        "anomaly_aliases": {
+          "$ref": "#/$defs/string_array"
+        },
+        "legacy_mode_labels": {
+          "$ref": "#/$defs/string_array",
+          "description": "迁移审计用的旧失效模式标签，不参与匹配。"
+        }
+      }
+    },
+    "hazard_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hazard_family",
+        "vehicle_hazard_class"
+      ],
+      "properties": {
+        "hazard_family": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "vehicle_hazard_class": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "hazard_aliases": {
+          "$ref": "#/$defs/string_array"
+        }
+      }
+    },
+    "scenario_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "semantic_fingerprint",
+        "dimensions",
+        "scenario_text"
+      ],
+      "properties": {
+        "semantic_fingerprint": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{16,64}$",
+          "description": "由规范化场景维度确定性生成；不是来源 Excel 的项目场景 ID。"
+        },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "maneuver",
+            "road_type",
+            "speed_band",
+            "traffic_condition"
+          ],
+          "properties": {
+            "maneuver": {
+              "$ref": "#/$defs/non_empty_string"
+            },
+            "road_type": {
+              "$ref": "#/$defs/non_empty_string"
+            },
+            "speed_band": {
+              "$ref": "#/$defs/non_empty_string"
+            },
+            "traffic_condition": {
+              "$ref": "#/$defs/non_empty_string"
+            },
+            "following_distance": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "slope": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "environment": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "vulnerable_road_user": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          }
+        },
+        "scenario_text": {
+          "$ref": "#/$defs/non_empty_string"
+        }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "severity",
+        "severity_reason",
+        "exposure",
+        "exposure_reason",
+        "controllability",
+        "controllability_reason",
+        "asil",
+        "safety_goal",
+        "safe_state",
+        "ftti"
+      ],
+      "properties": {
+        "severity": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 3
+        },
+        "severity_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exposure": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 4
+        },
+        "exposure_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "controllability": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 3
+        },
+        "controllability_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "asil": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "QM",
+            "A",
+            "B",
+            "C",
+            "D",
+            null
+          ]
+        },
+        "safety_goal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "safe_state": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ftti": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_assets",
+        "migration_batch"
+      ],
+      "properties": {
+        "source_assets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "asset_type",
+              "asset_name"
+            ],
+            "properties": {
+              "asset_type": {
+                "$ref": "#/$defs/non_empty_string"
+              },
+              "asset_name": {
+                "$ref": "#/$defs/non_empty_string"
+              },
+              "sheet": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "row": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "migration_batch": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

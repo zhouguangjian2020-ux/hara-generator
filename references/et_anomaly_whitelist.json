@@ -1,0 +1,551 @@
+{
+  "version": "1.0",
+  "domain": "ET",
+  "domain_name": "信息娱乐域",
+  "description": "ET域功能异常标准命名白名单（从参考Excel提取）。用于校验HAZOP表中功能异常表现的命名规范性。",
+  "total_anomalies": 59,
+  "coarse_keywords": [
+    "HUD显示不足",
+    "HUD显示丢失",
+    "HUD显示功能丢失",
+    "HUD显示失效",
+    "HUD显示异常",
+    "HUD显示显示错误",
+    "HUD显示过大",
+    "HUD显示错误",
+    "HUD显示间歇",
+    "HUD显示非预期",
+    "中控及娱乐系统丢失",
+    "中控及娱乐系统功能不足",
+    "中控及娱乐系统功能丢失",
+    "中控及娱乐系统功能失效",
+    "中控及娱乐系统功能异常",
+    "中控及娱乐系统功能显示错误",
+    "中控及娱乐系统功能过大",
+    "中控及娱乐系统功能错误",
+    "中控及娱乐系统功能间歇",
+    "中控及娱乐系统功能非预期",
+    "中控及娱乐系统失效",
+    "中控及娱乐系统非预期",
+    "乘员监测不足",
+    "乘员监测丢失",
+    "乘员监测功能丢失",
+    "乘员监测失效",
+    "乘员监测异常",
+    "乘员监测显示错误",
+    "乘员监测过大",
+    "乘员监测错误",
+    "乘员监测间歇",
+    "乘员监测非预期",
+    "仪表一般信息不足",
+    "仪表一般信息丢失",
+    "仪表一般信息功能丢失",
+    "仪表一般信息失效",
+    "仪表一般信息异常",
+    "仪表一般信息显示错误",
+    "仪表一般信息过大",
+    "仪表一般信息错误",
+    "仪表一般信息间歇",
+    "仪表一般信息非预期",
+    "手机互联不足",
+    "手机互联丢失",
+    "手机互联功能丢失",
+    "手机互联失效",
+    "手机互联异常",
+    "手机互联显示错误",
+    "手机互联过大",
+    "手机互联错误",
+    "手机互联间歇",
+    "手机互联非预期",
+    "行驶记录仪不足",
+    "行驶记录仪丢失",
+    "行驶记录仪功能丢失",
+    "行驶记录仪失效",
+    "行驶记录仪异常",
+    "行驶记录仪显示错误",
+    "行驶记录仪过大",
+    "行驶记录仪错误",
+    "行驶记录仪间歇",
+    "行驶记录仪非预期",
+    "账户设置及登陆不足",
+    "账户设置及登陆丢失",
+    "账户设置及登陆功能丢失",
+    "账户设置及登陆失效",
+    "账户设置及登陆异常",
+    "账户设置及登陆显示错误",
+    "账户设置及登陆过大",
+    "账户设置及登陆错误",
+    "账户设置及登陆间歇",
+    "账户设置及登陆非预期",
+    "车辆X-call不足",
+    "车辆X-call丢失",
+    "车辆X-call功能丢失",
+    "车辆X-call失效",
+    "车辆X-call异常",
+    "车辆X-call显示错误",
+    "车辆X-call过大",
+    "车辆X-call错误",
+    "车辆X-call间歇",
+    "车辆X-call非预期",
+    "车辆导航丢失",
+    "车辆导航功能不足",
+    "车辆导航功能丢失",
+    "车辆导航功能失效",
+    "车辆导航功能异常",
+    "车辆导航功能显示错误",
+    "车辆导航功能过大",
+    "车辆导航功能错误",
+    "车辆导航功能间歇",
+    "车辆导航功能非预期",
+    "车辆导航失效",
+    "车辆导航非预期",
+    "车辆远程控制丢失",
+    "车辆远程控制功能不足",
+    "车辆远程控制功能丢失",
+    "车辆远程控制功能失效",
+    "车辆远程控制功能异常",
+    "车辆远程控制功能显示错误",
+    "车辆远程控制功能过大",
+    "车辆远程控制功能错误",
+    "车辆远程控制功能间歇",
+    "车辆远程控制功能非预期",
+    "车辆远程控制失效",
+    "车辆远程控制非预期",
+    "非预期HUD显示",
+    "非预期中控及娱乐系统功能",
+    "非预期乘员监测",
+    "非预期仪表一般信息",
+    "非预期手机互联",
+    "非预期行驶记录仪",
+    "非预期账户设置及登陆",
+    "非预期车辆X-call",
+    "非预期车辆导航功能",
+    "非预期车辆远程控制功能",
+    "非预期驾驶员监测",
+    "驾驶员监测不足",
+    "驾驶员监测丢失",
+    "驾驶员监测功能丢失",
+    "驾驶员监测失效",
+    "驾驶员监测异常",
+    "驾驶员监测显示错误",
+    "驾驶员监测过大",
+    "驾驶员监测错误",
+    "驾驶员监测间歇",
+    "驾驶员监测非预期"
+  ],
+  "anomaly_list": [
+    {
+      "failure_id": "Info_MF_0002_01",
+      "function": "仪表一般信息",
+      "mode": "丢失",
+      "anomaly": "Ready灯显示丢失",
+      "hazard": "车辆无法发送Ready信号"
+    },
+    {
+      "failure_id": "Info_MF_0002_02",
+      "function": "仪表一般信息",
+      "mode": "",
+      "anomaly": "开机动画显示丢失",
+      "hazard": "车辆启动时无开机动画"
+    },
+    {
+      "failure_id": "Info_MF_0002_03",
+      "function": "仪表一般信息",
+      "mode": "",
+      "anomaly": "车速表显示丢失",
+      "hazard": "车辆无法显示车速"
+    },
+    {
+      "failure_id": "Info_MF_0002_04",
+      "function": "仪表一般信息",
+      "mode": "",
+      "anomaly": "电量表显示丢失",
+      "hazard": "车辆无法显示电量"
+    },
+    {
+      "failure_id": "Info_MF_0002_05",
+      "function": "仪表一般信息",
+      "mode": "",
+      "anomaly": "功率表、总里程、时间、温度显示丢失",
+      "hazard": "车辆无法显示功率表、总里程、时间、温度"
+    },
+    {
+      "failure_id": "Info_MF_0002_06",
+      "function": "仪表一般信息",
+      "mode": "",
+      "anomaly": "驾驶模式显示丢失",
+      "hazard": "车辆无法显示驾驶模式"
+    },
+    {
+      "failure_id": "Info_MF_0002_07",
+      "function": "仪表一般信息",
+      "mode": "非预期",
+      "anomaly": "Ready灯非预期显示",
+      "hazard": "车辆电源状态与Ready显示状态不符"
+    },
+    {
+      "failure_id": "Info_MF_0002_08",
+      "function": "仪表一般信息",
+      "mode": "",
+      "anomaly": "开机动画非预期显示",
+      "hazard": "覆盖仪表显示信息"
+    },
+    {
+      "failure_id": "Info_MF_0002_09",
+      "function": "仪表一般信息",
+      "mode": "",
+      "anomaly": "驾驶模式非预期显示",
+      "hazard": "驾驶模式与设置不符"
+    },
+    {
+      "failure_id": "Info_MF_0002_10",
+      "function": "仪表一般信息",
+      "mode": "过大",
+      "anomaly": "车速表显示车速过大",
+      "hazard": "车辆仪表显示车速高于实际"
+    },
+    {
+      "failure_id": "Info_MF_0002_11",
+      "function": "",
+      "mode": "",
+      "anomaly": "电量表显示电量过高",
+      "hazard": "车辆仪表显示电量高于实际"
+    },
+    {
+      "failure_id": "Info_MF_0002_12",
+      "function": "",
+      "mode": "",
+      "anomaly": "功率表、总里程、时间、温度显示过多",
+      "hazard": "车辆仪表显示功率表、总里程、时间、温度高于实际"
+    },
+    {
+      "failure_id": "Info_MF_0002_13",
+      "function": "",
+      "mode": "过小",
+      "anomaly": "车速表显示车速过小",
+      "hazard": "车辆仪表显示车速低于实际"
+    },
+    {
+      "failure_id": "Info_MF_0002_14",
+      "function": "",
+      "mode": "",
+      "anomaly": "电量表显示电量过低",
+      "hazard": "车辆仪表显示电量低于实际"
+    },
+    {
+      "failure_id": "Info_MF_0002_15",
+      "function": "",
+      "mode": "",
+      "anomaly": "功率表、总里程、时间、温度显示过少",
+      "hazard": "车辆仪表显示功率表、总里程、时间、温度低于实际"
+    },
+    {
+      "failure_id": "Info_MF_0003_01",
+      "function": "HUD显示",
+      "mode": "丢失",
+      "anomaly": "HUD功能无法开启",
+      "hazard": "车辆无法在HUD显示相关信息"
+    },
+    {
+      "failure_id": "Info_MF_0003_02",
+      "function": "HUD显示",
+      "mode": "",
+      "anomaly": "HUD功能无法关闭",
+      "hazard": "无法关闭车辆HUD显示"
+    },
+    {
+      "failure_id": "Info_MF_0003_03",
+      "function": "HUD显示",
+      "mode": "非预期",
+      "anomaly": "HUD显示信息非预期开启",
+      "hazard": "车辆HUD显示非预期打开"
+    },
+    {
+      "failure_id": "Info_MF_0003_04",
+      "function": "HUD显示",
+      "mode": "",
+      "anomaly": "HUD显示信息非预期关闭",
+      "hazard": "车辆HUD显示非预期关闭"
+    },
+    {
+      "failure_id": "Info_MF_0003_05",
+      "function": "HUD显示",
+      "mode": "过多",
+      "anomaly": "HUD显示角度、亮度及高度调节过多",
+      "hazard": "车辆HUD显示异常"
+    },
+    {
+      "failure_id": "Info_MF_0003_06",
+      "function": "HUD显示",
+      "mode": "过小",
+      "anomaly": "HUD显示角度、亮度及高度调节不足",
+      "hazard": "车辆HUD显示异常"
+    },
+    {
+      "failure_id": "Info_MF_0004_01",
+      "function": "账户设置及登陆",
+      "mode": "丢失",
+      "anomaly": "账户无法注册及登录",
+      "hazard": "车辆账户无法进入"
+    },
+    {
+      "failure_id": "Info_MF_0004_02",
+      "function": "账户设置及登陆",
+      "mode": "",
+      "anomaly": "账户无法退出或删除",
+      "hazard": "车辆账户无法退出或删除"
+    },
+    {
+      "failure_id": "Info_MF_0004_03",
+      "function": "账户设置及登陆",
+      "mode": "非预期",
+      "anomaly": "账户非预期退出或删除",
+      "hazard": "车辆账户非预期退出或删除"
+    },
+    {
+      "failure_id": "Info_MF_0005_01",
+      "function": "乘员监测",
+      "mode": "丢失",
+      "anomaly": "乘员监测功能丢失",
+      "hazard": "无法监测车内乘员状态及提醒"
+    },
+    {
+      "failure_id": "Info_MF_0005_02",
+      "function": "乘员监测",
+      "mode": "非预期",
+      "anomaly": "乘员监测功能非预期开启",
+      "hazard": "非预期启动乘员监测及提醒功能"
+    },
+    {
+      "failure_id": "Info_MF_0006_01",
+      "function": "行驶记录仪",
+      "mode": "丢失",
+      "anomaly": "行驶记录功能丢失",
+      "hazard": "无法记录行驶数据"
+    },
+    {
+      "failure_id": "Info_MF_0006_02",
+      "function": "行驶记录仪",
+      "mode": "",
+      "anomaly": "视频文件查看功能丢失",
+      "hazard": "无法查看记录的文件"
+    },
+    {
+      "failure_id": "Info_MF_0006_03",
+      "function": "行驶记录仪",
+      "mode": "非预期",
+      "anomaly": "非预期启动行驶记录功能",
+      "hazard": "非预期开启行驶记录功能"
+    },
+    {
+      "failure_id": "Info_MF_0007_01",
+      "function": "驾驶员监测",
+      "mode": "丢失",
+      "anomaly": "驾驶员监测功能丢失",
+      "hazard": "无法监测驾驶员状态及提醒"
+    },
+    {
+      "failure_id": "Info_MF_0007_02",
+      "function": "驾驶员监测",
+      "mode": "非预期",
+      "anomaly": "驾驶员监测功能非预期开启",
+      "hazard": "非预期启动驾驶员监测及提醒功能"
+    },
+    {
+      "failure_id": "Info_MF_0008_01",
+      "function": "手机互联",
+      "mode": "丢失",
+      "anomaly": "无法与手机互联",
+      "hazard": "手机功能无法在车端使用"
+    },
+    {
+      "failure_id": "Info_MF_0008_02",
+      "function": "手机互联",
+      "mode": "非预期",
+      "anomaly": "手机互联功能非预期断开",
+      "hazard": "手机功能无法在车端使用"
+    },
+    {
+      "failure_id": "Info_MF_0008_03",
+      "function": "手机互联",
+      "mode": "",
+      "anomaly": "手机非预期与车辆连接",
+      "hazard": "无危害"
+    },
+    {
+      "failure_id": "Info_MF_0009_01",
+      "function": "中控及娱乐系统功能",
+      "mode": "丢失",
+      "anomaly": "背景及动画演示丢失",
+      "hazard": "背景及动画无法演示"
+    },
+    {
+      "failure_id": "Info_MF_0009_02",
+      "function": "中控及娱乐系统功能",
+      "mode": "",
+      "anomaly": "中控常规信息显示丢失",
+      "hazard": "中控常规信息无法显示"
+    },
+    {
+      "failure_id": "Info_MF_0009_03",
+      "function": "中控及娱乐系统功能",
+      "mode": "",
+      "anomaly": "音频播放功能丢失",
+      "hazard": "无法播放音频"
+    },
+    {
+      "failure_id": "Info_MF_0009_04",
+      "function": "中控及娱乐系统功能",
+      "mode": "",
+      "anomaly": "视频频播放功能丢失",
+      "hazard": "无法播放视频"
+    },
+    {
+      "failure_id": "Info_MF_0009_05",
+      "function": "中控及娱乐系统功能",
+      "mode": "",
+      "anomaly": "图片显示功能丢失",
+      "hazard": "无法演示图片"
+    },
+    {
+      "failure_id": "Info_MF_0009_06",
+      "function": "中控及娱乐系统功能",
+      "mode": "",
+      "anomaly": "娱乐设置功能丢失",
+      "hazard": "无法对娱乐功能进行设置"
+    },
+    {
+      "failure_id": "Info_MF_0009_07",
+      "function": "中控及娱乐系统功能",
+      "mode": "非预期",
+      "anomaly": "背景动画非预期退出",
+      "hazard": "背景及动画无法演示"
+    },
+    {
+      "failure_id": "Info_MF_0009_08",
+      "function": "中控及娱乐系统功能",
+      "mode": "",
+      "anomaly": "背景动画非预期演示",
+      "hazard": "无法获得中控显示信息"
+    },
+    {
+      "failure_id": "Info_MF_0009_09",
+      "function": "中控及娱乐系统功能",
+      "mode": "",
+      "anomaly": "音频播放功能非预期退出",
+      "hazard": "无法播放音频"
+    },
+    {
+      "failure_id": "Info_MF_0009_10",
+      "function": "中控及娱乐系统功能",
+      "mode": "",
+      "anomaly": "音频播放功能非预期播放",
+      "hazard": "音频非预期播放"
+    },
+    {
+      "failure_id": "Info_MF_0009_11",
+      "function": "",
+      "mode": "",
+      "anomaly": "视频播放功能非预期退出",
+      "hazard": "无法播放视频"
+    },
+    {
+      "failure_id": "Info_MF_0009_12",
+      "function": "",
+      "mode": "",
+      "anomaly": "视频播放功能非预期播放",
+      "hazard": "视频非预期播放"
+    },
+    {
+      "failure_id": "Info_MF_0009_13",
+      "function": "",
+      "mode": "过多",
+      "anomaly": "音量调整过大",
+      "hazard": "音量突然变大，使驾驶员受到惊吓"
+    },
+    {
+      "failure_id": "Info_MF_0009_14",
+      "function": "",
+      "mode": "",
+      "anomaly": "视频进度调整过快",
+      "hazard": "用户体验不好，无整车危害"
+    },
+    {
+      "failure_id": "Info_MF_0009_15",
+      "function": "",
+      "mode": "过少",
+      "anomaly": "音量调整过小",
+      "hazard": "音量突然变小，用户听不到声音"
+    },
+    {
+      "failure_id": "Info_MF_0009_16",
+      "function": "",
+      "mode": "",
+      "anomaly": "视频进度调整过慢",
+      "hazard": "用户体验不好，无整车危害"
+    },
+    {
+      "failure_id": "Info_MF_0011_01",
+      "function": "车辆远程控制功能",
+      "mode": "丢失",
+      "anomaly": "远程控制车辆功能丢失",
+      "hazard": "无法远程控制车辆"
+    },
+    {
+      "failure_id": "Info_MF_0011_02",
+      "function": "车辆远程控制功能",
+      "mode": "非预期",
+      "anomaly": "远程控制非预期中断",
+      "hazard": "远程控制车辆中断"
+    },
+    {
+      "failure_id": "Info_MF_0012_01",
+      "function": "车辆X-call",
+      "mode": "丢失",
+      "anomaly": "紧急求救功能丢失",
+      "hazard": "无法进行紧急求救"
+    },
+    {
+      "failure_id": "Info_MF_0012_02",
+      "function": "车辆X-call",
+      "mode": "非预期",
+      "anomaly": "非预期进行紧急求救",
+      "hazard": "用户体验不好，无整车危害"
+    },
+    {
+      "failure_id": "Info_MF_0012_03",
+      "function": "车辆X-call",
+      "mode": "",
+      "anomaly": "紧急求救功能非预期中断",
+      "hazard": "紧急求救中断"
+    },
+    {
+      "failure_id": "Info_MF_0013_01",
+      "function": "车辆导航功能",
+      "mode": "丢失",
+      "anomaly": "车辆导航功能丢失",
+      "hazard": "车辆无法使用车辆导航，用户体验不好，无整车危害"
+    },
+    {
+      "failure_id": "Info_MF_0013_02",
+      "function": "车辆导航功能",
+      "mode": "",
+      "anomaly": "车辆导航无法退出",
+      "hazard": "车辆无法退出导航，用户体验不好，无整车危害"
+    },
+    {
+      "failure_id": "Info_MF_0013_03",
+      "function": "车辆导航功能",
+      "mode": "非预期",
+      "anomaly": "非预期退出导航",
+      "hazard": "车辆非预期退出导航，用户体验不好，无整车危害"
+    },
+    {
+      "failure_id": "Info_MF_0013_04",
+      "function": "车辆导航功能",
+      "mode": "",
+      "anomaly": "导航显示信息不正确",
+      "hazard": "车辆导航不正确，用户体验不好，无整车危害"
+    }
+  ]
+}

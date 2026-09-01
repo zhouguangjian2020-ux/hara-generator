@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "description": "所有域 Pack 共用的逻辑结构。字段描述的是功能安全语义与五张目标 Sheet 的内部关系，不描述或依赖参考 Excel 的格式。",
+  "required_root_fields": [
+    "schema_version",
+    "domain",
+    "domain_name",
+    "status",
+    "provenance",
+    "function_catalog",
+    "analysis_catalog",
+    "risk_catalog",
+    "safety_goal_catalog",
+    "quality_contract"
+  ],
+  "sections": {
+    "function_catalog": {
+      "required_fields": [
+        "function_matchers",
+        "semantic_roles",
+        "scope_rules",
+        "known_input_aliases"
+      ],
+      "purpose": "解析输入功能语义并为每个 Feature 给出 analyze/covered_by/transfer/exclude 之一。"
+    },
+    "analysis_catalog": {
+      "required_fields": [
+        "analysis_units",
+        "failure_mode_rules",
+        "hazop_patterns"
+      ],
+      "purpose": "定义标准分析单元、S2 模式和 S3 HAZOP 规范；每条 HAZOP 通过稳定 vehicle_hazard_id 引用整车危害目录。"
+    },
+    "risk_catalog": {
+      "required_fields": [
+        "scenario_sets",
+        "scenario_lookup",
+        "event_matrix"
+      ],
+      "purpose": "定义场景及精确风险矩阵。event_matrix 的键必须是 analysis_unit_id + failure_id + scenario_id。",
+      "optional_fields": {
+        "scenario_catalog": "启用 scenario_single_source_contract 时的唯一场景原文目录；键为 scenario_id。",
+        "scenario_single_source_contract": "声明 lookup、baseline 和来源事件只能引用 scenario_id，不得复制场景文本。",
+        "reference_event_matrix": "人工展开参考 HARA 的事件级来源记录；场景以 scenario_id 引用。"
+      }
+    },
+    "safety_goal_catalog": {
+      "required_fields": [
+        "hazard_catalog",
+        "hazard_families",
+        "rules"
+      ],
+      "purpose": "定义 S5 安全目标族、安全状态、FTTI 和语义合并键。"
+    },
+    "quality_contract": {
+      "required_fields": [
+        "known_exact_requirements",
+        "unknown_policy"
+      ],
+      "purpose": "定义运行时硬边界与回归验收要求。"
+    }
+  },
+  "feature_dispositions": [
+    "analyze",
+    "covered_by",
+    "transfer",
+    "exclude"
+  ],
+  "risk_matrix_key": [
+    "analysis_unit_id",
+    "failure_id",
+    "scenario_id"
+  ],
+  "target_sheets_only": [
+    "相关项功能清单",
+    "失效模式",
+    "HAZOP 分析",
+    "HARA 分析",
+    "整车安全目标"
+  ]
+}

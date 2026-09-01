@@ -1,0 +1,55 @@
+{
+  "schema_version": "3.1",
+  "source_legacy": "../scenario_lookup_table.json",
+  "domain_files": {
+    "CS": "CS.json",
+    "CB": "CB.json",
+    "AD": "AD.json",
+    "ET": "ET.json",
+    "BD": "BD.json"
+  },
+  "domain_aliases": {
+    "P": "PT",
+    "POWERTRAIN": "PT",
+    "PT": "PT",
+    "A": "AD",
+    "ADAS": "AD",
+    "AD": "AD",
+    "Info": "ET",
+    "INFOTAINMENT": "ET",
+    "ET": "ET",
+    "B": "BD",
+    "BODY": "BD",
+    "BD": "BD",
+    "CB": "CB",
+    "CHASSIS_BRAKE": "CB",
+    "CS": "CS",
+    "CHASSIS_STEERING": "CS"
+  },
+  "migration": {
+    "legacy_combined_file": "scenario_lookup_table.json",
+    "fallback_enabled": true,
+    "canonical_domains": [
+      "CS",
+      "CB",
+      "AD",
+      "ET",
+      "BD"
+    ],
+    "pt_single_source": "references/domain_packs/PT.json"
+  },
+  "scenario_set_domains": {
+    "steering_assist": "CS",
+    "epb_apply_loss": "CB",
+    "epb_release_loss": "CB",
+    "epb_unexpected_apply": "CB",
+    "epb_unexpected_release": "CB",
+    "epb_dynamic": "CB",
+    "epb_dynamic_loss": "CB",
+    "brake_loss": "CB",
+    "brake_unexpected": "CB"
+  },
+  "domain_pack_domains": [
+    "PT"
+  ]
+}

@@ -1,0 +1,294 @@
+{
+  "version": "1.0",
+  "domain": "PT",
+  "function_id": "P_func_0001",
+  "function_name": "档位控制及显示功能",
+  "description": "PT域档位控制功能的标准'功能异常表现'命名白名单，从数据组4参考Excel提取。Agent生成S3 HAZOP时必须使用这些标准命名，不得自创粗分类（如'非预期换挡请求'）。",
+  "total_anomalies": 38,
+  "anomaly_list": [
+    {
+      "failure_id": "P_MF_0001_01",
+      "mode": "丢失",
+      "anomaly": "P档切入D档位失效",
+      "hazard": "车辆无扭矩输出",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_02",
+      "mode": "丢失",
+      "anomaly": "N档切入D档位失效",
+      "hazard": "车辆无扭矩输出",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_03",
+      "mode": "丢失",
+      "anomaly": "R档切入D档位失效",
+      "hazard": "非预期向后移动",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_04",
+      "mode": "丢失",
+      "anomaly": "P档切入R档位失效",
+      "hazard": "车辆无扭矩输出",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_05",
+      "mode": "丢失",
+      "anomaly": "N档切入R档位失效",
+      "hazard": "车辆无扭矩输出",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_06",
+      "mode": "丢失",
+      "anomaly": "D档切入R档位失效",
+      "hazard": "非预期向前移动",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_07",
+      "mode": "丢失",
+      "anomaly": "P档切入N档位失效",
+      "hazard": "车辆无法移动",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_08",
+      "mode": "丢失",
+      "anomaly": "D档切入N档位失效",
+      "hazard": "非预期向前移动",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_09",
+      "mode": "丢失",
+      "anomaly": "R档切入N档位失效",
+      "hazard": "非预期向后移动",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_10",
+      "mode": "丢失",
+      "anomaly": "N档切入P档位失效",
+      "hazard": "溜车",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_11",
+      "mode": "丢失",
+      "anomaly": "D档切入P档位失效",
+      "hazard": "非预期向前移动",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_12",
+      "mode": "丢失",
+      "anomaly": "R档切入P档位失效",
+      "hazard": "非预期向后移动",
+      "category": "切入失效"
+    },
+    {
+      "failure_id": "P_MF_0001_13",
+      "mode": "丢失",
+      "anomaly": "D挡位不显示",
+      "hazard": "无法正确显示车辆D挡信息",
+      "category": "显示失效"
+    },
+    {
+      "failure_id": "P_MF_0001_14",
+      "mode": "丢失",
+      "anomaly": "R挡位不显示",
+      "hazard": "无法正确显示车辆R挡信息",
+      "category": "显示失效"
+    },
+    {
+      "failure_id": "P_MF_0001_15",
+      "mode": "丢失",
+      "anomaly": "N挡位不显示",
+      "hazard": "无法正确显示车辆N挡信息",
+      "category": "显示失效"
+    },
+    {
+      "failure_id": "P_MF_0001_16",
+      "mode": "丢失",
+      "anomaly": "P挡位不显示",
+      "hazard": "无法正确显示车辆P挡信息",
+      "category": "显示失效"
+    },
+    {
+      "failure_id": "P_MF_0001_17",
+      "mode": "非预期",
+      "anomaly": "非预期D档切入P",
+      "hazard": "车辆非预期减速",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_18",
+      "mode": "非预期",
+      "anomaly": "非预期D挡切入N",
+      "hazard": "车辆驱动力丢失",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_19",
+      "mode": "非预期",
+      "anomaly": "非预期R档切入P",
+      "hazard": "车辆意外驻车激活",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_20",
+      "mode": "非预期",
+      "anomaly": "非预期R档切入N",
+      "hazard": "车辆驱动力丢失",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_21",
+      "mode": "非预期",
+      "anomaly": "非预期N档切入P",
+      "hazard": "非预期减速",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_22",
+      "mode": "非预期",
+      "anomaly": "非预期N挡切入R",
+      "hazard": "非预期向后移动",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_23",
+      "mode": "非预期",
+      "anomaly": "非预期N挡切入D",
+      "hazard": "非预期向前移动",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_24",
+      "mode": "非预期",
+      "anomaly": "非预期P挡切入N",
+      "hazard": "溜车",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_25",
+      "mode": "非预期",
+      "anomaly": "非预期P挡切入R",
+      "hazard": "非预期向后移动",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_26",
+      "mode": "非预期",
+      "anomaly": "非预期P挡切入D",
+      "hazard": "非预期向前移动",
+      "category": "非预期切换"
+    },
+    {
+      "failure_id": "P_MF_0001_27",
+      "mode": "非预期",
+      "anomaly": "非预期D显示为P/N挡",
+      "hazard": "无法正确显示车辆D挡信息",
+      "category": "显示错误"
+    },
+    {
+      "failure_id": "P_MF_0001_28",
+      "mode": "非预期",
+      "anomaly": "非预期R显示为P/N挡",
+      "hazard": "无法正确显示车辆R挡信息",
+      "category": "显示错误"
+    },
+    {
+      "failure_id": "P_MF_0001_29",
+      "mode": "非预期",
+      "anomaly": "非预期N显示为P挡",
+      "hazard": "无法正确显示车辆N挡信息",
+      "category": "显示错误"
+    },
+    {
+      "failure_id": "P_MF_0001_30",
+      "mode": "非预期",
+      "anomaly": "非预期N显示为D挡",
+      "hazard": "无法正确显示车辆N挡信息",
+      "category": "显示错误"
+    },
+    {
+      "failure_id": "P_MF_0001_31",
+      "mode": "非预期",
+      "anomaly": "非预期N显示为R挡",
+      "hazard": "无法正确显示车辆N挡信息",
+      "category": "显示错误"
+    },
+    {
+      "failure_id": "P_MF_0001_32",
+      "mode": "非预期",
+      "anomaly": "非预期P显示为N挡",
+      "hazard": "无法正确显示车辆P挡信息",
+      "category": "显示错误"
+    },
+    {
+      "failure_id": "P_MF_0001_33",
+      "mode": "非预期",
+      "anomaly": "非预期P显示为R挡",
+      "hazard": "无法正确显示车辆P挡信息",
+      "category": "显示错误"
+    },
+    {
+      "failure_id": "P_MF_0001_34",
+      "mode": "非预期",
+      "anomaly": "非预期P显示为D挡",
+      "hazard": "无法正确显示车辆P挡信息",
+      "category": "显示错误"
+    },
+    {
+      "failure_id": "P_MF_0001_35",
+      "mode": "反向",
+      "anomaly": "非预期D挡进入R挡",
+      "hazard": "车辆反向移动",
+      "category": "反向切换"
+    },
+    {
+      "failure_id": "P_MF_0001_36",
+      "mode": "反向",
+      "anomaly": "非预期D挡进入R挡（车辆非预期减速）",
+      "hazard": "车辆非预期减速",
+      "category": "反向切换",
+      "note": "与P_MF_0001_35同失效表现不同危害，参考文件中异常列为空，按危害补充命名"
+    },
+    {
+      "failure_id": "P_MF_0001_37",
+      "mode": "反向",
+      "anomaly": "非预期R挡进入D挡",
+      "hazard": "车辆反向移动",
+      "category": "反向切换"
+    },
+    {
+      "failure_id": "P_MF_0001_38",
+      "mode": "反向",
+      "anomaly": "非预期D显示为R挡",
+      "hazard": "无法正确显示车辆D挡信息",
+      "category": "显示反向"
+    },
+    {
+      "failure_id": "P_MF_0001_39",
+      "mode": "反向",
+      "anomaly": "非预期R显示为D挡",
+      "hazard": "无法正确显示车辆R挡信息",
+      "category": "显示反向"
+    }
+  ],
+  "category_summary": {
+    "切入失效": 12,
+    "显示失效": 4,
+    "非预期切换": 10,
+    "显示错误": 8,
+    "反向切换": 3,
+    "显示反向": 2,
+    "total": 39
+  },
+  "usage": "Agent生成S3 HAZOP时，档位控制功能的'功能异常表现'必须从anomaly_list中选取标准命名。校验函数validate_pt_gear_naming会检查命名是否在白名单内，不在白名单的报warning。"
+}

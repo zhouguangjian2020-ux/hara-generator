@@ -1,0 +1,724 @@
+{
+  "meta": {
+    "generated_at": "2026-08-17",
+    "scope": "数据组1-11 全部",
+    "definition": "golden 主体 = 参考 Excel「是否HARA」列=否 的原始行（纯参考提取，含参考备注列）。agent_must_judge_no 为派生标注：这些参考=否的项规则未覆盖，须 Agent 在任务B 判'否'。ref_empty 为参考 Excel 留空的行（非'否'，需人工确认）。",
+    "note": "参考 Excel 对'否'相关项常只列代表行（如增程控制仅列 S-410-01，实际整组=否），故 golden 行数 < 实际不做 HARA 的功能总数；规则按相关项级整组排除补足。",
+    "total_ref_no_rows": 43,
+    "total_agent_must": 16,
+    "total_ref_empty": 0
+  },
+  "data_groups": {
+    "d1": {
+      "domain": "CS",
+      "desc": "转向",
+      "ref_no": [
+        {
+          "func_id": "CS_func_0002",
+          "func_name": "安全监控及故障报警功能",
+          "fid": "S-201-05",
+          "name": "安全监控及故障报警功能",
+          "desc": "控制单元能发送相应故障报文给人机交互界面，点亮仪表盘的转向报警灯，提醒用户转向系统发生了故障，并记录相应故障码。",
+          "ref_hara": "否",
+          "ref_note": "该功能属于本相关项的安全机制，根据ISO 26263标准不对此类功能进行HARA分析。",
+          "ref_row": 7
+        },
+        {
+          "func_id": "CS_func_0002",
+          "func_name": "安全监控及故障报警功能",
+          "fid": "S-201-06",
+          "name": "安全监控及故障报警功能",
+          "desc": "安全监控：过热保护、过欠压保护",
+          "ref_hara": "否",
+          "ref_note": "该功能属于本相关项的安全机制，根据ISO 26263标准不对此类功能进行HARA分析。",
+          "ref_row": 8
+        }
+      ],
+      "ref_empty": [],
+      "agent_must_count": 0
+    },
+    "d2": {
+      "domain": "CB",
+      "desc": "EPB",
+      "ref_no": [
+        {
+          "func_id": "CB_func_0002",
+          "func_name": "电子驻车制动",
+          "fid": "S-205-06",
+          "name": "电子驻车制动",
+          "desc": "车辆特殊模式",
+          "ref_hara": "否",
+          "ref_note": "此功能仅为ABS的特殊模式，不进行具体分析",
+          "ref_row": 7
+        }
+      ],
+      "ref_empty": [],
+      "agent_must_count": 0
+    },
+    "d3": {
+      "domain": "CB",
+      "desc": "行车制动",
+      "ref_no": [],
+      "ref_empty": [],
+      "agent_must_count": 0
+    },
+    "d4": {
+      "domain": "P",
+      "desc": "动力域",
+      "ref_no": [
+        {
+          "func_id": "P_func_0007",
+          "func_name": "车辆能耗及续航显示功能",
+          "fid": "S-408-01",
+          "name": "车辆能耗及续航显示功能",
+          "desc": "行驶过程中显示瞬时电耗",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 38
+        },
+        {
+          "func_id": "P_func_0007",
+          "func_name": "车辆能耗及续航显示功能",
+          "fid": "S-408-02",
+          "name": "车辆能耗及续航显示功能",
+          "desc": "实时平均电耗计算及显示功能",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 39
+        },
+        {
+          "func_id": "P_func_0007",
+          "func_name": "车辆能耗及续航显示功能",
+          "fid": "S-408-03",
+          "name": "车辆能耗及续航显示功能",
+          "desc": "车辆行驶过程中的需显示驱动功率和回收功率百分比，作为用户参考驱动力或回收力的大小",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 40
+        },
+        {
+          "func_id": "P_func_0007",
+          "func_name": "车辆能耗及续航显示功能",
+          "fid": "S-408-04",
+          "name": "车辆能耗及续航显示功能",
+          "desc": "包括在上电时显示最大可行驶里程，当续驶里程较低时通知用户，和在一些故障发生时停止显示续驶里程",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 41
+        },
+        {
+          "func_id": "P_func_0008",
+          "func_name": "增程控制系统",
+          "fid": "S-410-01",
+          "name": "增程控制系统",
+          "desc": "此功能要求正常状态下增程器启动控制",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 42
+        },
+        {
+          "func_id": "P_func_0008",
+          "func_name": "增程控制系统",
+          "fid": "S-410-01",
+          "name": "增程控制系统",
+          "desc": "此功能要求正常状态下增程器启动控制",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 43
+        },
+        {
+          "func_id": "P_func_0008",
+          "func_name": "增程控制系统",
+          "fid": "S-410-02",
+          "name": "增程控制系统",
+          "desc": "该功能包括增程器相关仪表提示要求",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 44
+        },
+        {
+          "func_id": "P_func_0008",
+          "func_name": "增程控制系统",
+          "fid": "S-410-03",
+          "name": "增程控制系统",
+          "desc": "该功能包括增程相关故障存储及报警",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 45
+        },
+        {
+          "func_id": "P_func_0008",
+          "func_name": "增程控制系统",
+          "fid": "S-410-04",
+          "name": "增程控制系统",
+          "desc": "该功能包括增程相关双怠速排放测试模式",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 46
+        },
+        {
+          "func_id": "P_func_0008",
+          "func_name": "增程控制系统",
+          "fid": "S-410-04",
+          "name": "增程控制系统",
+          "desc": "该功能包括增程相关双怠速排放测试模式",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 47
+        },
+        {
+          "func_id": "P_func_0008",
+          "func_name": "增程控制系统",
+          "fid": "S-410-05",
+          "name": "增程控制系统",
+          "desc": "该功能主要包括增程模式的设置、自动进入和退出、手动进入和退出以及相应信号和显示，增程模式包含纯电优先、燃油优先、自动模式等",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 48
+        },
+        {
+          "func_id": "P_func_0008",
+          "func_name": "增程控制系统",
+          "fid": "S-410-05",
+          "name": "增程控制系统",
+          "desc": "该功能主要包括增程模式的设置、自动进入和退出、手动进入和退出以及相应信号和显示，增程模式包含纯电优先、燃油优先、自动模式等",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 49
+        },
+        {
+          "func_id": "P_func_0008",
+          "func_name": "增程控制系统",
+          "fid": "S-410-05",
+          "name": "增程控制系统",
+          "desc": "该功能主要包括增程模式的设置、自动进入和退出、手动进入和退出以及相应信号和显示，增程模式包含纯电优先、燃油优先、自动模式等",
+          "ref_hara": "否",
+          "ref_note": "",
+          "ref_row": 50
+        }
+      ],
+      "ref_empty": [],
+      "agent_must_count": 0
+    },
+    "d5": {
+      "domain": "P",
+      "desc": "PT动力域",
+      "ref_no": [
+        {
+          "func_id": "P_func_0004",
+          "func_name": "车辆扭矩控制",
+          "fid": "S-404-07",
+          "name": "车辆扭矩控制",
+          "desc": "该功能包括将驱动能力限值发送给智能驾驶控制器，并响应智能驾驶控制器的请求，以及智驾和驾驶员驱动请求的仲裁",
+          "ref_hara": "否",
+          "ref_note": "划分到ADAS域进行分析",
+          "ref_row": 85
+        },
+        {
+          "func_id": "P_func_0004",
+          "func_name": "车辆扭矩控制",
+          "fid": "S-409-01",
+          "name": "车辆扭矩控制",
+          "desc": "定速巡航功能的进入、激活、暂停、退出登控制要求",
+          "ref_hara": "否",
+          "ref_note": "划分到ADAS域进行分析",
+          "ref_row": 91
+        },
+        {
+          "func_id": "P_func_0004",
+          "func_name": "车辆扭矩控制",
+          "fid": "S-409-02",
+          "name": "车辆扭矩控制",
+          "desc": "目标车速设定",
+          "ref_hara": "否",
+          "ref_note": "划分到ADAS域进行分析",
+          "ref_row": 92
+        },
+        {
+          "func_id": "P_func_0004",
+          "func_name": "车辆扭矩控制",
+          "fid": "S-409-03",
+          "name": "车辆扭矩控制",
+          "desc": "定速巡航扭矩的计算要求",
+          "ref_hara": "否",
+          "ref_note": "划分到ADAS域进行分析",
+          "ref_row": 93
+        },
+        {
+          "func_id": "P_func_0004",
+          "func_name": "车辆扭矩控制",
+          "fid": "S-409-04",
+          "name": "车辆扭矩控制",
+          "desc": "加速踏板可实现临时接管（定速巡航中超速模式）",
+          "ref_hara": "否",
+          "ref_note": "划分到ADAS域进行分析",
+          "ref_row": 94
+        },
+        {
+          "func_id": "P_func_0007",
+          "func_name": "车辆能耗及续航显示功能",
+          "fid": "S-408-01",
+          "name": "车辆能耗及续航显示功能",
+          "desc": "行驶过程中显示瞬时电耗",
+          "ref_hara": "否",
+          "ref_note": "车辆能耗及续航显示功能丢失或非预期启动对交通参与者不造成伤害，故不进行HARA分析",
+          "ref_row": 110
+        },
+        {
+          "func_id": "P_func_0007",
+          "func_name": "车辆能耗及续航显示功能",
+          "fid": "S-408-02",
+          "name": "车辆能耗及续航显示功能",
+          "desc": "实时平均电耗计算及显示功能",
+          "ref_hara": "否",
+          "ref_note": "车辆能耗及续航显示功能丢失或非预期启动对交通参与者不造成伤害，故不进行HARA分析",
+          "ref_row": 111
+        },
+        {
+          "func_id": "P_func_0007",
+          "func_name": "车辆能耗及续航显示功能",
+          "fid": "S-408-03",
+          "name": "车辆能耗及续航显示功能",
+          "desc": "车辆行驶过程中的需显示驱动功率和回收功率百分比，作为用户参考驱动力或回收力的大小",
+          "ref_hara": "否",
+          "ref_note": "车辆能耗及续航显示功能丢失或非预期启动对交通参与者不造成伤害，故不进行HARA分析",
+          "ref_row": 112
+        },
+        {
+          "func_id": "P_func_0007",
+          "func_name": "车辆能耗及续航显示功能",
+          "fid": "S-408-04",
+          "name": "车辆能耗及续航显示功能",
+          "desc": "包括在上电时显示最大可行驶里程，当续驶里程较低时通知用户，和在一些故障发生时停止显示续驶里程",
+          "ref_hara": "否",
+          "ref_note": "车辆能耗及续航显示功能丢失或非预期启动对交通参与者不造成伤害，故不进行HARA分析",
+          "ref_row": 113
+        }
+      ],
+      "ref_empty": [],
+      "agent_must_count": 5
+    },
+    "d6": {
+      "domain": "CB",
+      "desc": "CH BRAKE",
+      "ref_no": [
+        {
+          "func_id": "CB_func_0001",
+          "func_name": "车辆制动功能",
+          "fid": "S-202-07",
+          "name": "车辆制动功能",
+          "desc": "ACC功能激活时，车速≥5km/h（TBD），处于D档，制动系统响应制动能量回收",
+          "ref_hara": "否",
+          "ref_note": "该功能划分至智驾域分析",
+          "ref_row": 9
+        },
+        {
+          "func_id": "CB_func_0001",
+          "func_name": "车辆制动功能",
+          "fid": "S-202-15",
+          "name": "车辆制动功能",
+          "desc": "响应ADAS请求",
+          "ref_hara": "否",
+          "ref_note": "该功能划分至智驾域分析",
+          "ref_row": 11
+        },
+        {
+          "func_id": "CB_func_0007",
+          "func_name": "车辆模式",
+          "fid": "S-202-19",
+          "name": "车辆模式",
+          "desc": "当车辆需要进入工厂模式/拖车模式或测功模式时，CCU发送请求给IBS，IBS禁用相关功能或故障报警",
+          "ref_hara": "否",
+          "ref_note": "此功能仅为IBS的特殊模式，不进行具体分析",
+          "ref_row": 22
+        }
+      ],
+      "ref_empty": [],
+      "agent_must_count": 2
+    },
+    "d7": {
+      "domain": "CB",
+      "desc": "CH BRAKE EPB",
+      "ref_no": [
+        {
+          "func_id": "CB_func_0008",
+          "func_name": "电子驻车制动",
+          "fid": "S-203-06",
+          "name": "电子驻车制动",
+          "desc": "车辆特殊模式",
+          "ref_hara": "否",
+          "ref_note": "此功能仅为IBS的特殊模式，不进行具体分析",
+          "ref_row": 7
+        }
+      ],
+      "ref_empty": [],
+      "agent_must_count": 0
+    },
+    "d8": {
+      "domain": "CS",
+      "desc": "CH Steering",
+      "ref_no": [
+        {
+          "func_id": "CS_func_0001",
+          "func_name": "转向助力功能",
+          "fid": "S-201-11",
+          "name": "转向助力功能",
+          "desc": "自动齿条对中ARC",
+          "ref_hara": "否",
+          "ref_note": "/",
+          "ref_row": 10
+        },
+        {
+          "func_id": "CS_func_0001",
+          "func_name": "转向助力功能",
+          "fid": "S-201-13",
+          "name": "转向助力功能",
+          "desc": "响应外部系统请求",
+          "ref_hara": "否",
+          "ref_note": "划到智驾域分析",
+          "ref_row": 12
+        },
+        {
+          "func_id": "CS_func_0001",
+          "func_name": "转向助力功能",
+          "fid": "S-201-14",
+          "name": "转向助力功能",
+          "desc": "恢复车辆设置",
+          "ref_hara": "否",
+          "ref_note": "/",
+          "ref_row": 13
+        },
+        {
+          "func_id": "CS_func_0001",
+          "func_name": "转向助力功能",
+          "fid": "S-201-15",
+          "name": "转向助力功能",
+          "desc": "个性化设置记忆",
+          "ref_hara": "否",
+          "ref_note": "/",
+          "ref_row": 14
+        },
+        {
+          "func_id": "CS_func_0002",
+          "func_name": "安全监控及故障报警功能",
+          "fid": "S-201-09",
+          "name": "安全监控及故障报警功能",
+          "desc": "故障报警",
+          "ref_hara": "否",
+          "ref_note": "该功能属于本相关项的安全机制，根据ISO 26262标准不对此类功能进行HARA分析。",
+          "ref_row": 15
+        },
+        {
+          "func_id": "CS_func_0002",
+          "func_name": "安全监控及故障报警功能",
+          "fid": "S-201-10",
+          "name": "安全监控及故障报警功能",
+          "desc": "安全监控",
+          "ref_hara": "否",
+          "ref_note": "该功能属于本相关项的安全机制，根据ISO 26262标准不对此类功能进行HARA分析。",
+          "ref_row": 16
+        }
+      ],
+      "ref_empty": [],
+      "agent_must_count": 2
+    },
+    "d9": {
+      "domain": "A",
+      "desc": "AD智驾",
+      "ref_no": [],
+      "ref_empty": [],
+      "agent_must_count": 0
+    },
+    "d10": {
+      "domain": "Info",
+      "desc": "ET娱乐",
+      "ref_no": [
+        {
+          "func_id": "Info_func_0001",
+          "func_name": "警示信息",
+          "fid": "S-328-01",
+          "name": "警示信息",
+          "desc": "仪表屏会显示车身、底盘、动力等相关的报警及弹窗",
+          "ref_hara": "否",
+          "ref_note": "该功能属于其它相关项的安全机制，根据ISO 26262标准不对此类功能进行HARA分析。",
+          "ref_row": 2
+        },
+        {
+          "func_id": "Info_func_0001",
+          "func_name": "警示信息",
+          "fid": "S-328-02",
+          "name": "警示信息",
+          "desc": "座舱域控制器会对指示灯及报警弹窗的显示进行优先级排序，避免干扰用户感知",
+          "ref_hara": "否",
+          "ref_note": "该功能属于其它相关项的安全机制，根据ISO 26262标准不对此类功能进行HARA分析。",
+          "ref_row": 3
+        },
+        {
+          "func_id": "Info_func_0010",
+          "func_name": "车辆控制功能设置",
+          "fid": "S-323-01",
+          "name": "车辆控制功能设置",
+          "desc": "软开关设置",
+          "ref_hara": "否",
+          "ref_note": "该功能属于车身、动力、底盘、智驾域的附属功能，划分至各自相关域；座舱域的控制功能还没有更新。",
+          "ref_row": 160
+        }
+      ],
+      "ref_empty": [],
+      "agent_must_count": 3
+    },
+    "d11": {
+      "domain": "B",
+      "desc": "BD车身",
+      "ref_no": [
+        {
+          "func_id": "B_func_0015",
+          "func_name": "外灯故障报警",
+          "fid": "S-101-20",
+          "name": "外灯故障报警",
+          "desc": "包括位置灯故障、昼间行驶灯故障、近光灯故障、前后雾灯故障、远光灯故障、转向灯故障、制动灯故障、倒车灯故障报警等",
+          "ref_hara": "否",
+          "ref_note": "该功能属于安全机制，不对安全机制进行分析",
+          "ref_row": 17
+        },
+        {
+          "func_id": "B_func_0031",
+          "func_name": "方向盘振动",
+          "fid": "S-109-02",
+          "name": "方向盘振动",
+          "desc": "当出现车道偏离、行车时未握住方向盘等情况时，方向盘会震动以提示驾驶员",
+          "ref_hara": "否",
+          "ref_note": "该功能划分至智驾域分析",
+          "ref_row": 56
+        },
+        {
+          "func_id": "B_func_0038",
+          "func_name": "前舱盖锁控制",
+          "fid": "S-113-05",
+          "name": "前舱盖锁控制",
+          "desc": "该功能用于控制前舱盖解锁",
+          "ref_hara": "否",
+          "ref_note": "前舱盖锁控制为机械控制，不做功能安全分析。",
+          "ref_row": 68
+        },
+        {
+          "func_id": "B_func_0043",
+          "func_name": "车辆上电后发生碰撞高压下电",
+          "fid": "S-118-01",
+          "name": "车辆上电后发生碰撞高压下电",
+          "desc": "车辆发生碰撞后，高压立即下电。",
+          "ref_hara": "否",
+          "ref_note": "该功能划分到动力域分析",
+          "ref_row": 80
+        },
+        {
+          "func_id": "B_func_0045",
+          "func_name": "车辆碰撞激活ECALL功能",
+          "fid": "S-118-03",
+          "name": "车辆碰撞激活ECALL功能",
+          "desc": "碰撞后，如果安全气囊启爆，自动拨打紧急救援电话。",
+          "ref_hara": "否",
+          "ref_note": "该功能划分到座舱域分析",
+          "ref_row": 82
+        }
+      ],
+      "ref_empty": [],
+      "agent_must_count": 4
+    }
+  },
+  "agent_must_judge_no": [
+    {
+      "data": "d5",
+      "domain": "P",
+      "desc": "该功能包括将驱动能力限值发送给智能驾驶控制器，并响应智能驾驶控制器的请求，以及智驾和驾驶员驱动请求的仲裁",
+      "func_id": "P_func_0004",
+      "func_name": "车辆扭矩控制",
+      "fid": "S-404-07",
+      "name": "车辆扭矩控制",
+      "ref_hara": "否",
+      "ref_note": "划分到ADAS域进行分析",
+      "ref_row": 85
+    },
+    {
+      "data": "d5",
+      "domain": "P",
+      "desc": "定速巡航功能的进入、激活、暂停、退出登控制要求",
+      "func_id": "P_func_0004",
+      "func_name": "车辆扭矩控制",
+      "fid": "S-409-01",
+      "name": "车辆扭矩控制",
+      "ref_hara": "否",
+      "ref_note": "划分到ADAS域进行分析",
+      "ref_row": 91
+    },
+    {
+      "data": "d5",
+      "domain": "P",
+      "desc": "目标车速设定",
+      "func_id": "P_func_0004",
+      "func_name": "车辆扭矩控制",
+      "fid": "S-409-02",
+      "name": "车辆扭矩控制",
+      "ref_hara": "否",
+      "ref_note": "划分到ADAS域进行分析",
+      "ref_row": 92
+    },
+    {
+      "data": "d5",
+      "domain": "P",
+      "desc": "定速巡航扭矩的计算要求",
+      "func_id": "P_func_0004",
+      "func_name": "车辆扭矩控制",
+      "fid": "S-409-03",
+      "name": "车辆扭矩控制",
+      "ref_hara": "否",
+      "ref_note": "划分到ADAS域进行分析",
+      "ref_row": 93
+    },
+    {
+      "data": "d5",
+      "domain": "P",
+      "desc": "加速踏板可实现临时接管（定速巡航中超速模式）",
+      "func_id": "P_func_0004",
+      "func_name": "车辆扭矩控制",
+      "fid": "S-409-04",
+      "name": "车辆扭矩控制",
+      "ref_hara": "否",
+      "ref_note": "划分到ADAS域进行分析",
+      "ref_row": 94
+    },
+    {
+      "data": "d6",
+      "domain": "CB",
+      "desc": "ACC功能激活时，车速≥5km/h（TBD），处于D档，制动系统响应制动能量回收",
+      "func_id": "CB_func_0001",
+      "func_name": "车辆制动功能",
+      "fid": "S-202-07",
+      "name": "车辆制动功能",
+      "ref_hara": "否",
+      "ref_note": "该功能划分至智驾域分析",
+      "ref_row": 9
+    },
+    {
+      "data": "d6",
+      "domain": "CB",
+      "desc": "响应ADAS请求",
+      "func_id": "CB_func_0001",
+      "func_name": "车辆制动功能",
+      "fid": "S-202-15",
+      "name": "车辆制动功能",
+      "ref_hara": "否",
+      "ref_note": "该功能划分至智驾域分析",
+      "ref_row": 11
+    },
+    {
+      "data": "d8",
+      "domain": "CS",
+      "desc": "响应外部系统请求",
+      "func_id": "CS_func_0001",
+      "func_name": "转向助力功能",
+      "fid": "S-201-13",
+      "name": "转向助力功能",
+      "ref_hara": "否",
+      "ref_note": "划到智驾域分析",
+      "ref_row": 12
+    },
+    {
+      "data": "d8",
+      "domain": "CS",
+      "desc": "个性化设置记忆",
+      "func_id": "CS_func_0001",
+      "func_name": "转向助力功能",
+      "fid": "S-201-15",
+      "name": "转向助力功能",
+      "ref_hara": "否",
+      "ref_note": "/",
+      "ref_row": 14
+    },
+    {
+      "data": "d10",
+      "domain": "Info",
+      "desc": "仪表屏会显示车身、底盘、动力等相关的报警及弹窗",
+      "func_id": "Info_func_0001",
+      "func_name": "警示信息",
+      "fid": "S-328-01",
+      "name": "警示信息",
+      "ref_hara": "否",
+      "ref_note": "该功能属于其它相关项的安全机制，根据ISO 26262标准不对此类功能进行HARA分析。",
+      "ref_row": 2
+    },
+    {
+      "data": "d10",
+      "domain": "Info",
+      "desc": "座舱域控制器会对指示灯及报警弹窗的显示进行优先级排序，避免干扰用户感知",
+      "func_id": "Info_func_0001",
+      "func_name": "警示信息",
+      "fid": "S-328-02",
+      "name": "警示信息",
+      "ref_hara": "否",
+      "ref_note": "该功能属于其它相关项的安全机制，根据ISO 26262标准不对此类功能进行HARA分析。",
+      "ref_row": 3
+    },
+    {
+      "data": "d10",
+      "domain": "Info",
+      "desc": "软开关设置",
+      "func_id": "Info_func_0010",
+      "func_name": "车辆控制功能设置",
+      "fid": "S-323-01",
+      "name": "车辆控制功能设置",
+      "ref_hara": "否",
+      "ref_note": "该功能属于车身、动力、底盘、智驾域的附属功能，划分至各自相关域；座舱域的控制功能还没有更新。",
+      "ref_row": 160
+    },
+    {
+      "data": "d11",
+      "domain": "B",
+      "desc": "当出现车道偏离、行车时未握住方向盘等情况时，方向盘会震动以提示驾驶员",
+      "func_id": "B_func_0031",
+      "func_name": "方向盘振动",
+      "fid": "S-109-02",
+      "name": "方向盘振动",
+      "ref_hara": "否",
+      "ref_note": "该功能划分至智驾域分析",
+      "ref_row": 56
+    },
+    {
+      "data": "d11",
+      "domain": "B",
+      "desc": "该功能用于控制前舱盖解锁",
+      "func_id": "B_func_0038",
+      "func_name": "前舱盖锁控制",
+      "fid": "S-113-05",
+      "name": "前舱盖锁控制",
+      "ref_hara": "否",
+      "ref_note": "前舱盖锁控制为机械控制，不做功能安全分析。",
+      "ref_row": 68
+    },
+    {
+      "data": "d11",
+      "domain": "B",
+      "desc": "车辆发生碰撞后，高压立即下电。",
+      "func_id": "B_func_0043",
+      "func_name": "车辆上电后发生碰撞高压下电",
+      "fid": "S-118-01",
+      "name": "车辆上电后发生碰撞高压下电",
+      "ref_hara": "否",
+      "ref_note": "该功能划分到动力域分析",
+      "ref_row": 80
+    },
+    {
+      "data": "d11",
+      "domain": "B",
+      "desc": "碰撞后，如果安全气囊启爆，自动拨打紧急救援电话。",
+      "func_id": "B_func_0045",
+      "func_name": "车辆碰撞激活ECALL功能",
+      "fid": "S-118-03",
+      "name": "车辆碰撞激活ECALL功能",
+      "ref_hara": "否",
+      "ref_note": "该功能划分到座舱域分析",
+      "ref_row": 82
+    }
+  ],
+  "ref_empty": []
+}
