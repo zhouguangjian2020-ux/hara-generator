@@ -556,7 +556,8 @@ class ExcelWriter:
                     ws.cell(row=row, column=16, value=ev.get("safety_goal") if has_sg else None)
                     ws.cell(row=row, column=17, value=ev.get("safe_state") if has_sg else None)
                     ws.cell(row=row, column=18, value=ev.get("ftti") if has_sg else None)
-                    ws.cell(row=row, column=19, value=ev.get("note"))
+                    # S列不导出内部 note；追溯信息保留在 S4 JSON。
+                    ws.cell(row=row, column=19, value=None)
                     total_events += 1
                     row += 1
 

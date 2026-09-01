@@ -325,32 +325,11 @@ def assign_sg_ids(sg_list: list[dict], domain: str = "X") -> list[dict]:
     )
     sorted_list = [sg for _idx, sg in sorted_indexed]
 
-    reserved = {
-        str(sg.get("reference_vehicle_safety_goal_id")).strip()
-        for sg in sorted_list
-        if str(sg.get("reference_vehicle_safety_goal_id") or "").strip()
-    }
-    assigned: set[str] = set()
-    next_number = 1
-    for sg in sorted_list:
-        reference_id = str(sg.get("reference_vehicle_safety_goal_id") or "").strip()
-        if reference_id:
-            allowed_prefixes = {domain}
-            if domain == "PT":
-                # Excel 中的 PT 权威目标沿用项目历史前缀 P；旧自动编号仍使用 PT。
-                allowed_prefixes.add("P")
-            if not any(re.fullmatch(rf"{re.escape(prefix)}_SG_VH_\d{{4}}", reference_id) for prefix in allowed_prefixes):
-                raise ValueError(f"权威整车安全目标 ID 格式错误: {reference_id}")
-            sg["sg_id"] = reference_id
-            assigned.add(reference_id)
-            continue
-        while True:
-            candidate = f"{domain}_SG_VH_{next_number:04d}"
-            next_number += 1
-            if candidate not in reserved and candidate not in assigned:
-                sg["sg_id"] = candidate
-                assigned.add(candidate)
-                break
+    # 当前项目的正式整车安全目标 ID 必须在最终合并、排序后重新连续编号。
+    # Domain Pack/案例库中的历史 ID 仅保留在 reference_vehicle_safety_goal_id 中用于追溯。
+    output_prefix = "P" if domain == "PT" else domain
+    for sequence, sg in enumerate(sorted_list, start=1):
+        sg["sg_id"] = f"{output_prefix}_SG_VH_{sequence:04d}"
 
     return sorted_list
 
@@ -631,6 +610,19 @@ def validate_sg_assignment_quality(safety_goals_result: dict) -> list:
     # SG ID 格式正则
     sg_prefixes = [domain, "P"] if domain == "PT" else [domain]
     sg_id_pattern = re.compile(rf"^(?:{'|'.join(re.escape(prefix) for prefix in sg_prefixes)})_SG_VH_\d{{4}}$")
+    # 当前项目编号必须与最终显示顺序一致，从 0001 开始连续递增。
+    output_prefix = "P" if domain == "PT" else domain
+    actual_ids = [str(sg.get("sg_id") or "") for sg in sgs]
+    expected_ids = [
+        f"{output_prefix}_SG_VH_{sequence:04d}"
+        for sequence in range(1, len(sgs) + 1)
+    ]
+    if actual_ids != expected_ids:
+        issues.append((
+            "error",
+            "整车安全目标 ID 必须按当前表格顺序从 0001 连续递增："
+            f"期望={expected_ids}，实际={actual_ids}",
+        ))
 
     # 同文本可以因危害族/ASIL/安全状态/FTTI 不同而合法地形成多个 SG；
     # 因此只检测重复的受控合并键，不能再按文本报错。
