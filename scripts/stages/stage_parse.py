@@ -20,9 +20,8 @@ from utils.docx_parser import (
     parse_docx_with_context,
 )
 from utils.domain_packs import compile_domain_context
-from utils.domain_pack_generation import apply_effective_pt_case_routes
+from utils.domain_pack_generation import apply_effective_case_routes
 from utils.s1_rules import apply_s1_rules, to_intermediate_json
-from utils.pt_subfunction_source import default_pt_subfunction_source_path
 from utils.s2_rules import compute_s2_for_related_items
 
 
@@ -250,8 +249,7 @@ def run(args):
         for warning in duplicate_warnings:
             print(f"  [WARN] {warning['message']}")
 
-    pt_authority_path = default_pt_subfunction_source_path()
-    s1_result = apply_s1_rules(related_items, pt_authority_path=pt_authority_path)
+    s1_result = apply_s1_rules(related_items)
     total_pending = sum(len(value.get("pending_subs", [])) for value in s1_result.values())
     total_excluded = sum(1 for value in s1_result.values() if value.get("excluded"))
     total_sub_locked = sum(len(value.get("decisions", {})) for value in s1_result.values())
@@ -306,7 +304,7 @@ def run(args):
         if func_id in s2_suggestions:
             item_dict["s2_suggestions"] = s2_suggestions[func_id]
     _compile_domain_contexts(intermediate)
-    route_metrics = apply_effective_pt_case_routes(intermediate)
+    route_metrics = apply_effective_case_routes(intermediate)
     # When every HARA-positive PT function is covered by a unique function-level
     # case set, unresolved document chapters remain diagnostic only.  They no
     # longer create an Agent task for S1-S5, while unmatched_chapters is retained
@@ -317,11 +315,11 @@ def run(args):
         quality["raw_requires_agent_document_parse"] = quality.get("requires_agent_document_parse", False)
         quality["analysis_context_ready"] = True
         quality["requires_agent_document_parse"] = False
-        quality["analysis_context_source"] = "pt_function_case_set_exact"
+        quality["analysis_context_source"] = "function_case_set_exact"
         quality["chapter_evidence_complete"] = not bool(intermediate.get("unmatched_chapters"))
         quality["chapter_unmatched_non_blocking"] = bool(intermediate.get("unmatched_chapters"))
         quality["document_parse_bypass_reason"] = (
-            "PT HARA正向整车功能均由唯一案例集精确锁定；未匹配章节保留为审计诊断，不阻断S1-S5。"
+            "已迁移域的 HARA 正向整车功能均由唯一案例集精确锁定；未匹配章节保留为审计诊断，不阻断 S1-S5。"
         )
         intermediate.setdefault("agent_work_required", {})["document_parse_required"] = False
         intermediate["agent_work_required"]["document_parse_bypass"] = True
@@ -336,7 +334,7 @@ def run(args):
     if quality.get("chapter_unmatched_non_blocking"):
         print(
             f"章节未自动匹配 {quality.get('metrics', {}).get('chapter_unmatched_count', 0)} 项；"
-            "PT案例集已精确覆盖HARA路径，未匹配章节仅保留为审计诊断，不触发Agent任务。"
+            "域内案例集已精确覆盖 HARA 路径，未匹配章节仅保留为审计诊断，不触发 Agent 任务。"
         )
 
     request_path = _emit_document_request(args, output_path, intermediate)

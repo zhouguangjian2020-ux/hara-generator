@@ -12,7 +12,7 @@ from utils.document_agent import (
     validate_agent_document_structure,
 )
 from utils.s2_rules import compute_s2_for_related_items
-from utils.domain_pack_generation import apply_effective_pt_case_routes
+from utils.domain_pack_generation import apply_effective_case_routes
 
 
 def _load(path: str) -> dict:
@@ -52,7 +52,7 @@ def run(args):
             if func_id in s2_suggestions:
                 item["s2_suggestions"] = s2_suggestions[func_id]
         _compile_domain_contexts(result)
-    apply_effective_pt_case_routes(result)
+    apply_effective_case_routes(result)
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as stream:

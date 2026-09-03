@@ -89,11 +89,7 @@ class CaseLibrary:
         return _CANONICAL_DOMAIN_ALIASES.get(value, value)
 
     def load_domain(self, domain: str) -> bool:
-        """Load only the canonical v2 runtime asset for a domain.
-
-        Legacy ``*_cases.json`` files are migration inputs/audit references and
-        are never an implicit runtime fallback.
-        """
+        """优先读取 Domain Pack 内嵌案例目录，迁移期回退旧独立案例文件。"""
         canonical = self.canonical_domain(domain)
         if not canonical:
             print("WARNING: Cannot load case library for empty domain")
@@ -101,46 +97,59 @@ class CaseLibrary:
         if canonical in self.loaded_domains:
             return True
 
-        # PT 的语义案例必须与 Domain Pack 使用同一个 JSON，避免
-        # PT.json 内嵌完整 PT 语义案例目录，运行时不再维护独立案例文件。
-        if canonical == "PT":
-            case_file = self.domain_pack_dir / "PT.json"
-        else:
-            # 非 PT 域保持既有扩展能力；当前仓库没有为这些域启用 v2 案例文件。
-            case_file = self.library_dir / f"{canonical}_cases_v2.json"
-        if not case_file.exists():
-            print(
-                f"WARNING: v2 case library not found for domain {domain} "
-                f"(canonical={canonical}): {case_file}"
-            )
-            return False
+        pack_file = self.domain_pack_dir / f"{canonical}.json"
+        case_file = pack_file
+        cases = None
+        if pack_file.exists():
+            try:
+                with pack_file.open("r", encoding="utf-8") as handle:
+                    pack = json.load(handle)
+                if isinstance(pack, dict) and "case_library_catalog" in pack:
+                    catalog = pack.get("case_library_catalog")
+                    if not isinstance(catalog, dict) or not isinstance(catalog.get("cases"), list):
+                        raise ValueError(f"{canonical}.json case_library_catalog.cases 必须是数组")
+                    cases = catalog["cases"]
+            except Exception as error:
+                print(f"ERROR: Failed to load embedded case library for {canonical}: {error}")
+                return False
 
-        try:
-            with case_file.open("r", encoding="utf-8") as handle:
-                payload = json.load(handle)
-            if canonical == "PT":
-                catalog = payload.get("case_library_catalog") if isinstance(payload, dict) else None
-                cases = catalog.get("cases") if isinstance(catalog, dict) else None
-                if not isinstance(cases, list):
-                    raise ValueError("PT.json 缺少 case_library_catalog.cases")
-            else:
-                cases = payload
-            if not isinstance(cases, list):
-                raise ValueError("case library root must be a list")
-            invalid = [
-                index for index, case in enumerate(cases)
-                if not isinstance(case, dict) or case.get("schema_version") != "2.0"
-            ]
-            if invalid:
-                raise ValueError(f"v2 asset contains invalid records: {invalid[:5]}")
-            self.cases_by_domain[canonical] = cases
-            self.loaded_domains.add(canonical)
-            self.loaded_files[canonical] = case_file
-            print(f"Loaded {len(cases)} v2 cases for domain {canonical} from {case_file.name}")
-            return True
-        except Exception as error:
-            print(f"ERROR: Failed to load case library for {canonical}: {error}")
+        if cases is None:
+            case_file = self.library_dir / f"{canonical}_cases_v2.json"
+            if not case_file.exists():
+                print(
+                    f"WARNING: v2 case library not found for domain {domain} "
+                    f"(canonical={canonical}): {case_file}"
+                )
+                return False
+            try:
+                with case_file.open("r", encoding="utf-8") as handle:
+                    cases = json.load(handle)
+            except (OSError, json.JSONDecodeError) as error:
+                print(f"ERROR: Failed to load case library for {canonical}: {error}")
+                return False
+
+        if not isinstance(cases, list):
+            print(f"ERROR: case library root must be a list for {canonical}")
             return False
+        invalid = [
+            index for index, case in enumerate(cases)
+            if not isinstance(case, dict) or case.get("schema_version") != "2.0"
+        ]
+        if invalid:
+            print(f"ERROR: v2 asset contains invalid records for {canonical}: {invalid[:5]}")
+            return False
+        wrong_domain = [
+            index for index, case in enumerate(cases)
+            if self.canonical_domain(case.get("domain")) != canonical
+        ]
+        if wrong_domain:
+            print(f"ERROR: case library contains cross-domain records for {canonical}: {wrong_domain[:5]}")
+            return False
+        self.cases_by_domain[canonical] = cases
+        self.loaded_domains.add(canonical)
+        self.loaded_files[canonical] = case_file
+        print(f"Loaded {len(cases)} v2 cases for domain {canonical} from {case_file.name}")
+        return True
 
     def _cases(self, domain: Any) -> tuple[str, list[dict]]:
         canonical = self.canonical_domain(domain)

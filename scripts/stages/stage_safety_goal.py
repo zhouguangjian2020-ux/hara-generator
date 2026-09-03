@@ -100,11 +100,13 @@ def generate(s4_hara_path: str, output_path: str = "safety_goals.json") -> None:
 
     domain = canonical_domain_pack_code(s4_final.get("domain", "X"))
     vehicle_safety_goal_catalog = None
-    if domain == "PT":
-        # PT 的整车安全目标目录来自同一运行时 Domain Pack，作为 S5
-        # 的权威预填源；目录缺失时保持旧的自动编号兼容行为。
-        pack = load_domain_pack("PT")
-        vehicle_safety_goal_catalog = pack.get("vehicle_safety_goal_catalog")
+    # 有整车安全目标目录的域使用本域 Domain Pack 作为 S5 参考源；
+    # 没有目录的域保持原有通用合并/编号行为。
+    try:
+        pack = load_domain_pack(domain)
+    except ValueError:
+        pack = {}
+    vehicle_safety_goal_catalog = pack.get("vehicle_safety_goal_catalog")
     result = generate_safety_goals(s4_final, vehicle_safety_goal_catalog)
 
     issues = result.get("validation_issues", [])

@@ -166,6 +166,10 @@ class ExcelWriter:
                 s1_sub = s1_index.get(func_id, {}).get(fid, {})
                 is_hara = s1_sub.get("is_hara", True)
                 remark = s1_sub.get("remark", "/")
+                # Domain Pack/权威表说明属于内部追溯元数据，不写入用户可见的
+                # “相关项功能清单”备注列；保留 s1_decisions.json 中的原字段。
+                if s1_sub.get("source") in {"pt_subfunction_authority", "domain_subfunction_authority", "domain_pack"}:
+                    remark = "/"
 
                 ws.cell(row=row, column=1, value=func_id)
                 ws.cell(row=row, column=2, value=func_name)
@@ -254,7 +258,10 @@ class ExcelWriter:
                 if mode in mode_cols:
                     ws.cell(row=r, column=mode_cols[mode], value="√")
             if reason_col:
-                ws.cell(row=r, column=reason_col, value=d.get("reason", ""))
+                # Domain Pack 的内部路由说明用于审计/合同校验，不写入
+                # “失效模式”Sheet 的用户可见“选择理由”列。
+                reason = "" if d.get("source") == "domain_pack" else d.get("reason", "")
+                ws.cell(row=r, column=reason_col, value=reason)
 
         print(f"[Writer] 失效模式: 写入 {n} 行, {len(mode_cols)} 种模式列")
 

@@ -3,11 +3,12 @@
 # 纯函数，无 CLI
 
 from utils.data_models import DOMAIN_NAMES, canonicalize_domain
+from pathlib import Path
 from utils.domain_packs import compile_domain_context
-from utils.pt_subfunction_source import (
-    RUNTIME_FILENAME,
-    load_pt_subfunction_authority,
-    match_pt_subfunctions,
+from utils.domain_subfunction_source import (
+    default_subfunction_source_path,
+    load_domain_subfunction_authority,
+    match_domain_subfunctions,
 )
 
 
@@ -47,13 +48,20 @@ HARA_RULES = {
 
 # ========== 公开接口 ==========
 
-def apply_s1_rules(related_items: list, *, pt_authority_path=None) -> dict:
+def apply_s1_rules(related_items: list, *, pt_authority_path=None, authority_paths: dict[str, str] | None = None) -> dict:
     """
     对相关项应用 S1 规则层（关键词匹配）。
     返回 {item_index: {"excluded": bool, "pending_subs": [idx, ...], "decisions": {sub_idx: {is_hara, remark}}}}
     以及全局统计。
     """
     result = {}
+    configured_paths = {
+        canonicalize_domain(key): value
+        for key, value in (authority_paths or {}).items()
+        if canonicalize_domain(key)
+    }
+    if pt_authority_path is not None:
+        configured_paths["PT"] = pt_authority_path
     for i, item in enumerate(related_items):
         item_result = {
             "excluded": False,
@@ -74,9 +82,13 @@ def apply_s1_rules(related_items: list, *, pt_authority_path=None) -> dict:
                     item_result["decisions"][j] = {"is_hara": False, "remark": rule["remark"]}
                 break
 
-        if item_result["excluded"] and pt_authority_path is None:
-            result[i] = item_result
-            continue
+        if item_result["excluded"]:
+            # 旧逻辑在没有 PT 权威表时会直接保留相关项级排除；迁移后按域
+            # 检查默认权威资产，只有存在资产时才继续让权威表覆盖该结论。
+            authority_path = configured_paths.get(canonicalize_domain(item.domain)) or default_subfunction_source_path(item.domain)
+            if not Path(authority_path).exists():
+                result[i] = item_result
+                continue
 
         # 第2层：子功能级关键词规则
         for j, sub in enumerate(item.sub_functions):
@@ -92,7 +104,7 @@ def apply_s1_rules(related_items: list, *, pt_authority_path=None) -> dict:
                     item_result["decisions"][j] = {"is_hara": False, "remark": rule["remark"]}
                     matched = True
                     break
-            if not matched:
+            if not matched and not item_result["excluded"]:
                 item_result["pending_subs"].append(j)
 
         result[i] = item_result
@@ -176,69 +188,65 @@ def apply_s1_rules(related_items: list, *, pt_authority_path=None) -> dict:
                 if not item_result["item_remark"]:
                     item_result["item_remark"] = "该相关项的全部功能已由 Domain Pack 排除或移交。"
 
-    # PT 子功能表是 PT 域 S1 的最终工程师权威来源。它必须放在通用规则和
-    # Domain Pack 之后应用：已命中的表格结论覆盖旧关键词/语义预判；未命中
-    # 仍保留 pending，交给 Agent 分析，并明确标记 unknown/ambiguous。
-    if pt_authority_path is not None:
+    # 子功能权威表是各域 S1 的最终工程师权威来源。
+    # 仅当部署了对应 <DOMAIN>_subfunctions.json 时启用；未部署的域继续走
+    # 关键词 + Domain Pack + Agent 的原有路径。
+    authority_cache: dict[str, tuple[list, dict]] = {}
+    for item_index, item in enumerate(related_items):
+        domain = canonicalize_domain(item.domain)
+        if not domain:
+            continue
+        path = configured_paths.get(domain) or default_subfunction_source_path(domain)
+        if not Path(path).exists():
+            continue
         try:
-            authority_records, authority_summary = load_pt_subfunction_authority(pt_authority_path)
+            if domain not in authority_cache:
+                authority_cache[domain] = load_domain_subfunction_authority(domain, path)
+            authority_records, authority_summary = authority_cache[domain]
         except (FileNotFoundError, ValueError) as error:
             authority_records = []
             authority_summary = {
-                "schema_version": "pt_subfunction_authority.v1",
-                "source_file": str(pt_authority_path),
+                "schema_version": "domain_subfunction_authority.v1",
+                "source_file": str(path),
                 "load_error": str(error),
             }
-        for item_index, item in enumerate(related_items):
-            if item.domain not in {"P", "PT"}:
+        item_result = result[item_index]
+        matches = match_domain_subfunctions(
+            item.func_name, [sub.name for sub in item.sub_functions], authority_records, domain=domain
+        ) if authority_records else [{
+            "hara_match_status": "unknown", "hara": None,
+            "hara_source": str(path), "match_method": "authority_source_unavailable",
+            "source_row": None, "source_record_id": None,
+            "source_function_name": item.func_name, "source_feature_name": None,
+            "source_remark": authority_summary.get("load_error"),
+        } for _ in item.sub_functions]
+        item_result["authority_summary"] = authority_summary
+        for sub_index, match in enumerate(matches):
+            item_result["authority"][sub_index] = match
+            if match.get("hara_match_status") != "exact_known":
+                item_result["decisions"].pop(sub_index, None)
+                if sub_index not in item_result["pending_subs"]:
+                    item_result["pending_subs"].append(sub_index)
+                item_result["excluded"] = False
                 continue
-            item_result = result[item_index]
-            matches = match_pt_subfunctions(
-                item.func_name,
-                [sub.name for sub in item.sub_functions],
-                authority_records,
-            ) if authority_records else [
-                {
-                    "hara_match_status": "unknown",
-                    "hara": None,
-                    "hara_source": RUNTIME_FILENAME,
-                    "match_method": "authority_source_unavailable",
-                    "source_row": None,
-                    "source_record_id": None,
-                    "source_function_name": item.func_name,
-                    "source_feature_name": None,
-                    "source_remark": authority_summary.get("load_error"),
-                }
-                for _ in item.sub_functions
-            ]
-            item_result["authority_summary"] = authority_summary
-            for sub_index, match in enumerate(matches):
-                item_result["authority"][sub_index] = match
-                if match.get("hara_match_status") != "exact_known":
-                    # 权威表未唯一命中时，不能让旧关键词/Domain Pack 结论
-                    # 静默覆盖 unknown/ambiguous；必须重新交给 Agent 推理。
-                    item_result["decisions"].pop(sub_index, None)
-                    if sub_index not in item_result["pending_subs"]:
-                        item_result["pending_subs"].append(sub_index)
-                    item_result["excluded"] = False
-                    continue
-                item_result["decisions"][sub_index] = {
-                    "is_hara": bool(match.get("hara")),
-                    "remark": match.get("source_remark") or "依据 PT_subfunctions.json 权威判定。",
-                    "source": "pt_subfunction_authority",
-                    "disposition": "analyze" if match.get("hara") else "exclude",
-                    "reason_code": "PT_SUBFUNCTION_AUTHORITY_HARA_YES" if match.get("hara") else "PT_SUBFUNCTION_AUTHORITY_HARA_NO",
-                    "authority": match,
-                }
-                if sub_index in item_result["pending_subs"]:
-                    item_result["pending_subs"].remove(sub_index)
-            if item.sub_functions and all(
-                item_result["decisions"].get(index, {}).get("is_hara") is False
-                for index in range(len(item.sub_functions))
-            ):
-                item_result["excluded"] = True
-                if not item_result["item_remark"]:
-                    item_result["item_remark"] = "该相关项的全部子功能均由 PT_subfunctions.json 判定为不进行 HARA。"
+            is_hara = bool(match.get("hara"))
+            item_result["decisions"][sub_index] = {
+                "is_hara": is_hara,
+                "remark": match.get("source_remark") or f"依据 {domain}_subfunctions.json 权威判定。",
+                "source": "pt_subfunction_authority" if domain == "PT" else "domain_subfunction_authority",
+                "disposition": "analyze" if is_hara else "exclude",
+                "reason_code": f"{domain}_SUBFUNCTION_AUTHORITY_HARA_{'YES' if is_hara else 'NO'}",
+                "authority": match,
+            }
+            if sub_index in item_result["pending_subs"]:
+                item_result["pending_subs"].remove(sub_index)
+        if item.sub_functions and all(
+            item_result["decisions"].get(index, {}).get("is_hara") is False
+            for index in range(len(item.sub_functions))
+        ):
+            item_result["excluded"] = True
+            if not item_result["item_remark"]:
+                item_result["item_remark"] = f"该相关项的全部子功能均由 {domain}_subfunctions.json 判定为不进行 HARA。"
 
     return result
 
@@ -350,13 +358,20 @@ def to_intermediate_json(doc_name: str, related_items: list,
             "chapter_unmatched_count": len(unmatched_chapters),
         },
     }
-    authority_summaries = [
-        value.get("authority_summary")
-        for value in s1_result.values()
-        if isinstance(value, dict) and value.get("authority_summary")
-    ]
-    if authority_summaries:
-        result["pt_subfunction_authority"] = authority_summaries[0]
+    authority_by_domain = {}
+    for item_index, value in s1_result.items():
+        if not isinstance(value, dict) or not value.get("authority_summary"):
+            continue
+        if not isinstance(item_index, int) or not (0 <= item_index < len(related_items)):
+            continue
+        domain = canonicalize_domain(related_items[item_index].domain)
+        if domain:
+            authority_by_domain[domain] = value["authority_summary"]
+    if authority_by_domain:
+        result["domain_subfunction_authority"] = authority_by_domain
+        if "PT" in authority_by_domain:
+            # 保留旧字段，避免已有调用方在 PT 迁移期间失效。
+            result["pt_subfunction_authority"] = authority_by_domain["PT"]
     if document_context is not None:
         result["document_context"] = document_context
     if parse_quality is not None:

@@ -107,7 +107,7 @@ def _scenario_identity(value: Any) -> str:
     return re.sub(r"\s+", "", text).strip()
 
 
-def _validate_single_source_scenario_contract(risk: dict[str, Any]) -> list[str]:
+def _validate_single_source_scenario_contract(risk: dict[str, Any], *, expected_domain: str | None = None) -> list[str]:
     """验证启用场景单源合同的 Pack：文本只存在 catalog，其他位置只引用 ID。"""
     errors: list[str] = []
     contract = risk.get("scenario_single_source_contract")
@@ -120,8 +120,9 @@ def _validate_single_source_scenario_contract(risk: dict[str, Any]) -> list[str]
     if not isinstance(catalog, dict) or not catalog:
         return ["单源场景合同要求非空 risk_catalog.scenario_catalog"]
     seen_texts: dict[str, str] = {}
+    scenario_prefix = f"{expected_domain}_SC_" if expected_domain else ""
     for scenario_id, item in catalog.items():
-        if not isinstance(scenario_id, str) or not scenario_id.startswith("PT_SC_"):
+        if not isinstance(scenario_id, str) or (scenario_prefix and not scenario_id.startswith(scenario_prefix)):
             errors.append(f"scenario_catalog 含无效 scenario_id: {scenario_id!r}")
             continue
         if not isinstance(item, dict):
@@ -178,7 +179,8 @@ def _validate_single_source_scenario_contract(risk: dict[str, Any]) -> list[str]
         if "scenario" in event:
             errors.append(f"reference_event_matrix[{index}] 不得存储重复 scenario 文本")
         event_id = event.get("reference_event_id")
-        if not isinstance(event_id, str) or not re.fullmatch(r"P_hzrd_\d{5}", event_id):
+        event_prefix = "P" if expected_domain == "PT" else (expected_domain or "DOMAIN")
+        if not isinstance(event_id, str) or not re.fullmatch(rf"{re.escape(event_prefix)}_hzrd_\d{{5}}", event_id):
             errors.append(f"reference_event_matrix[{index}] reference_event_id 无效")
         elif event_id in source_ids:
             errors.append(f"reference_event_matrix[{index}] reference_event_id 重复: {event_id}")
@@ -192,24 +194,21 @@ def _validate_single_source_scenario_contract(risk: dict[str, Any]) -> list[str]
     return errors
 
 
-def _validate_pt_case_library_catalog(pack: dict[str, Any]) -> list[str]:
-    """验证 PT 单套运行时资产中的语义案例目录。
-
-    该校验只对 PT 生效，避免改变其他域 Domain Pack 的合同；PT 的案例匹配
-    与 Domain Pack 合并到同一个 JSON 后，目录损坏必须在加载阶段失败关闭。
-    """
+def _validate_case_library_catalog(pack: dict[str, Any], *, expected_domain: str | None = None) -> list[str]:
+    """验证任意域内嵌的 v2 语义案例目录。"""
+    domain = expected_domain or str(pack.get("domain") or "").strip()
+    filename = f"{domain}.json" if domain else "<DOMAIN>.json"
     catalog = pack.get("case_library_catalog")
     if not isinstance(catalog, dict):
-        return ["PT.json 缺少 case_library_catalog"]
+        return [f"{filename} 缺少 case_library_catalog"]
     if catalog.get("schema_version") != "2.0":
-        return ["PT.json case_library_catalog.schema_version 必须为 2.0"]
+        return [f"{filename} case_library_catalog.schema_version 必须为 2.0"]
     cases = catalog.get("cases")
     if not isinstance(cases, list):
-        return ["PT.json case_library_catalog.cases 必须是数组"]
+        return [f"{filename} case_library_catalog.cases 必须是数组"]
     case_count = catalog.get("case_count")
     if case_count != len(cases):
-        return [f"PT.json case_library_catalog.case_count={case_count!r} 与实际案例数 {len(cases)} 不一致"]
-
+        return [f"{filename} case_library_catalog.case_count={case_count!r} 与实际案例数 {len(cases)} 不一致"]
     errors: list[str] = []
     required_profiles = ("function_profile", "failure_profile", "hazard_profile", "scenario_profile", "assessment")
     for index, case in enumerate(cases):
@@ -219,17 +218,15 @@ def _validate_pt_case_library_catalog(pack: dict[str, Any]) -> list[str]:
             continue
         if case.get("schema_version") != "2.0":
             errors.append(f"{prefix}.schema_version 必须为 2.0")
-        if case.get("domain") != "PT":
-            errors.append(f"{prefix}.domain 必须为 PT")
+        if expected_domain and case.get("domain") != expected_domain:
+            errors.append(f"{prefix}.domain 必须为 {expected_domain}")
         if not isinstance(case.get("case_id"), str) or not case.get("case_id"):
             errors.append(f"{prefix}.case_id 必须是非空字符串")
         for profile_name in required_profiles:
             if not isinstance(case.get(profile_name), dict):
                 errors.append(f"{prefix}.{profile_name} 必须是对象")
         event_description = case.get("event_description")
-        if event_description is not None and (
-            not isinstance(event_description, str) or not event_description.strip()
-        ):
+        if event_description is not None and (not isinstance(event_description, str) or not event_description.strip()):
             errors.append(f"{prefix}.event_description 必须为非空字符串或 null")
         source_refs = case.get("source_refs")
         if not isinstance(source_refs, list) or not source_refs:
@@ -259,8 +256,8 @@ def validate_domain_pack(pack: dict[str, Any], *, expected_domain: str | None = 
         errors.append("status 必须是非空字符串")
     if not isinstance(pack.get("provenance"), dict):
         errors.append("provenance 必须是对象")
-    if domain == "PT":
-        errors.extend(_validate_pt_case_library_catalog(pack))
+    if "case_library_catalog" in pack:
+        errors.extend(_validate_case_library_catalog(pack, expected_domain=domain))
 
     for section, fields in _REQUIRED_SECTIONS.items():
         value = pack.get(section)
@@ -320,7 +317,7 @@ def validate_domain_pack(pack: dict[str, Any], *, expected_domain: str | None = 
     risk = pack.get("risk_catalog")
     analysis = pack.get("analysis_catalog")
     if isinstance(risk, dict) and isinstance(analysis, dict):
-        errors.extend(_validate_single_source_scenario_contract(risk))
+        errors.extend(_validate_single_source_scenario_contract(risk, expected_domain=domain))
         event_matrix_for_shape_check = risk.get("event_matrix", [])
         requires_structured_scenarios = bool(event_matrix_for_shape_check) or bool(
             pack.get("quality_contract", {}).get("exact_risk_matrix")

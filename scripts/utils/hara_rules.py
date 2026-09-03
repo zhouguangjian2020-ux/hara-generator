@@ -395,7 +395,7 @@ def canonical_scenario_domain(domain: str) -> str:
     return raw
 
 
-def _expand_pt_pack_lookup(value: object, catalog: dict) -> object:
+def _expand_domain_pack_lookup(value: object, catalog: dict) -> object:
     """将 PT Pack 中的 scenario_ids 展开为运行时只读场景文本视图。"""
     if isinstance(value, dict):
         result = {}
@@ -409,26 +409,27 @@ def _expand_pt_pack_lookup(value: object, catalog: dict) -> object:
                         scenarios.append(text)
                 result["scenarios"] = scenarios
             else:
-                result[key] = _expand_pt_pack_lookup(child, catalog)
+                result[key] = _expand_domain_pack_lookup(child, catalog)
         return result
     if isinstance(value, list):
-        return [_expand_pt_pack_lookup(child, catalog) for child in value]
+        return [_expand_domain_pack_lookup(child, catalog) for child in value]
     return value
 
 
-def _load_pt_domain_pack_scenarios() -> dict:
-    """从 PT Domain Pack 构造运行时场景视图；PT 不再读取 scenarios/PT.json。"""
-    pack = load_domain_pack("PT")
+def _load_domain_pack_scenarios(domain: str) -> dict:
+    """从指定域 Domain Pack 构造运行时场景视图。"""
+    canonical = canonical_scenario_domain(domain)
+    pack = load_domain_pack(canonical)
     risk = pack.get("risk_catalog", {})
     catalog = risk.get("scenario_catalog", {}) if isinstance(risk, dict) else {}
     lookup = risk.get("scenario_lookup", {}) if isinstance(risk, dict) else {}
     return {
         "schema_version": "domain_pack_single_source",
-        "domain": "PT",
+        "domain": canonical,
         "domain_name": pack.get("domain_name", ""),
-        "function_types": _expand_pt_pack_lookup(lookup, catalog),
+        "function_types": _expand_domain_pack_lookup(lookup, catalog),
         "scenario_sets": risk.get("scenario_sets", {}) if isinstance(risk, dict) else {},
-        "scenario_asset": "references/domain_packs/PT.json",
+        "scenario_asset": f"references/domain_packs/{canonical}.json",
     }
 
 
@@ -452,12 +453,17 @@ def _load_legacy_scenario_lookup() -> dict:
 
 
 def load_domain_scenario(domain: str, allow_legacy: bool = True) -> dict:
-    """只加载指定域的场景资产；PT 从 Domain Pack 单源读取。"""
+    """加载指定域场景；启用单源合同的域从 Domain Pack 读取，否则兼容旧场景资产。"""
     canonical = canonical_scenario_domain(domain)
     if canonical in _SCENARIO_DOMAIN_CACHE:
         return _SCENARIO_DOMAIN_CACHE[canonical]
-    if canonical == "PT":
-        _SCENARIO_DOMAIN_CACHE[canonical] = _load_pt_domain_pack_scenarios()
+    try:
+        pack = load_domain_pack(canonical)
+    except ValueError:
+        pack = None
+    risk = pack.get("risk_catalog", {}) if isinstance(pack, dict) else {}
+    if isinstance(risk, dict) and risk.get("scenario_single_source_contract") and isinstance(risk.get("scenario_catalog"), dict):
+        _SCENARIO_DOMAIN_CACHE[canonical] = _load_domain_pack_scenarios(canonical)
         return _SCENARIO_DOMAIN_CACHE[canonical]
     manifest = load_scenario_manifest()
     filename = manifest.get("domain_files", {}).get(canonical, f"{canonical}.json")

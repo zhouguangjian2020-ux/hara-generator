@@ -9,8 +9,8 @@ from __future__ import annotations
 from typing import Any
 import re
 
-from .domain_packs import load_domain_pack
-from .function_matcher import resolve_pt_function_semantics
+from .domain_packs import canonical_domain_pack_code, load_domain_pack
+from .function_matcher import resolve_domain_function_semantics
 from .project_ids import allocate_project_function_numbers
 
 
@@ -43,8 +43,8 @@ def _intermediate_items(intermediate: dict[str, Any]) -> dict[str, dict[str, Any
     }
 
 
-def _pt_cases(pack: dict[str, Any], function_family: str) -> list[dict[str, Any]]:
-    """返回 PT 运行时唯一权威案例集合中的某个整车功能案例。"""
+def _domain_cases(pack: dict[str, Any], function_family: str) -> list[dict[str, Any]]:
+    """返回指定 Domain Pack 内嵌案例目录中的某个功能案例。"""
     catalog = pack.get("case_library_catalog", {})
     cases = catalog.get("cases", []) if isinstance(catalog, dict) else []
     return [
@@ -66,7 +66,7 @@ def _case_source_ref(case: dict[str, Any]) -> dict[str, Any]:
 def _case_set_id(case: dict[str, Any]) -> str:
     """从案例来源追溯取得稳定 case set 键，不使用项目运行期 ID。"""
     ref = _case_source_ref(case)
-    return str(ref.get("source_project") or ref.get("source_file") or "PT_RUNTIME_CASE_SET").strip()
+    return str(ref.get("source_project") or ref.get("source_file") or f"{canonical_domain_pack_code(case.get("domain")) or "DOMAIN"}_RUNTIME_CASE_SET").strip()
 
 
 def _case_source_function_key(case: dict[str, Any]) -> str:
@@ -91,7 +91,7 @@ def _case_anomaly(case: dict[str, Any]) -> str:
     return str(profile.get("anomaly_class") or "").strip()
 
 
-def _case_hazard(case: dict[str, Any], hazard_catalog: dict[str, Any]) -> dict[str, Any] | None:
+def _case_hazard(case: dict[str, Any], hazard_catalog: dict[str, Any], domain: str) -> dict[str, Any] | None:
     profile = case.get("hazard_profile") or {}
     hazard_text = str(profile.get("vehicle_hazard_class") or "").strip()
     family_id = profile.get("hazard_family")
@@ -105,19 +105,20 @@ def _case_hazard(case: dict[str, Any], hazard_catalog: dict[str, Any]) -> dict[s
                 "hazard_family": family_id or item.get("hazard_family"),
                 "associated_hara": _associated_hara_value(hazard_text),
             }
-    if hazard_text and any(token in hazard_text.lower() for token in _NO_VEHICLE_LEVEL_HAZARD_TOKENS):
+    no_hazard_id = next((str(key) for key, value in hazard_catalog.items()
+                         if isinstance(value, dict) and (
+                             str(key).upper().endswith("_HZ_NO_HAZARD")
+                             or str(value.get("hazard_family") or "").lower().endswith("no_hazard")
+                         )), None)
+    if no_hazard_id and (
+        (hazard_text and any(token in hazard_text.lower() for token in _NO_VEHICLE_LEVEL_HAZARD_TOKENS))
+        or (family_id and str(family_id).lower().endswith("no_hazard"))
+    ):
+        no_hazard = hazard_catalog.get(no_hazard_id, {})
         return {
-            "vehicle_hazard_id": "PT_HZ_NO_HAZARD",
-            "description": hazard_text,
-            "hazard_family": "pt_hazard_family_no_hazard",
-            "associated_hara": "不涉及",
-        }
-    if family_id == "pt_hazard_family_no_hazard":
-        no_hazard = hazard_catalog.get("PT_HZ_NO_HAZARD", {})
-        return {
-            "vehicle_hazard_id": "PT_HZ_NO_HAZARD",
-            "description": str(no_hazard.get("vehicle_hazard") or "无整车层面危害"),
-            "hazard_family": family_id,
+            "vehicle_hazard_id": no_hazard_id,
+            "description": str(no_hazard.get("vehicle_hazard") or hazard_text or "无整车层面危害"),
+            "hazard_family": family_id or no_hazard.get("hazard_family") or f"{domain.lower()}_hazard_family_no_hazard",
             "associated_hara": "不涉及",
         }
     return None
@@ -133,10 +134,10 @@ def _source_hint_text(source_hint: dict[str, Any] | None) -> str:
     return " ".join(str(value) for value in values if value)
 
 
-def _pt_case_set_contract(
+def _case_set_contract(
     pack: dict[str, Any], function_family: str, source_hint: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
-    cases = _pt_cases(pack, function_family)
+    cases = _domain_cases(pack, function_family)
     if not cases:
         return None
     by_set: dict[str, list[dict[str, Any]]] = {}
@@ -173,7 +174,7 @@ def _pt_case_set_contract(
     }
 
 
-def _group_pt_cases(cases: list[dict[str, Any]], selected_modes: list[str], hazard_catalog: dict[str, Any]) -> tuple[list[dict[str, Any]], str | None]:
+def _group_domain_cases(cases: list[dict[str, Any]], selected_modes: list[str], hazard_catalog: dict[str, Any], domain: str) -> tuple[list[dict[str, Any]], str | None]:
     """按 case_set/source_function/source_failure 分组，一个组只产生一个 failure。"""
     groups: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
     for case in cases:
@@ -199,7 +200,7 @@ def _group_pt_cases(cases: list[dict[str, Any]], selected_modes: list[str], haza
             return [], "CASE_SET_FAILURE_GROUP_MISMATCH"
         hazard_map: dict[tuple[str, str], dict[str, Any]] = {}
         for case in members:
-            hazard = _case_hazard(case, hazard_catalog)
+            hazard = _case_hazard(case, hazard_catalog, domain)
             if hazard is None:
                 return [], "CASE_SET_HAZARD_MISMATCH"
             hazard_map[(hazard["vehicle_hazard_id"], hazard["description"])] = hazard
@@ -288,134 +289,119 @@ def _resolve_analysis_unit(
 
 
 
-def apply_effective_pt_case_routes(intermediate: dict[str, Any]) -> dict[str, int]:
-    """Project PT function-level exact routing into Agent-facing intermediate context.
-
-    PT source-case coverage is selected by the unique vehicle-function case set, not by
-    requiring every HARA-positive sub-function to resolve to a semantic role.  The
-    latter remains useful diagnostic information, but it must not be exposed as an
-    actionable ``unknown`` when the function-level exact contract is already locked.
-    Raw feature diagnostics are preserved under ``raw_*`` fields.
-    """
+def apply_effective_case_routes(intermediate: dict[str, Any]) -> dict[str, int]:
+    """将已具备内嵌案例目录的域统一投影为功能级 exact 路由。"""
     related_items = intermediate.get("related_items", [])
     contexts = intermediate.get("domain_contexts", {})
     if not isinstance(related_items, list) or not isinstance(contexts, dict):
         return {"routed_count": 0, "eligible_count": 0}
-
-    pt_items = [
-        item for item in related_items
-        if isinstance(item, dict)
-        and item.get("domain") in {"P", "PT"}
-        and any(sub.get("s1_rule_is_hara") is True for sub in item.get("sub_functions", []) if isinstance(sub, dict))
-    ]
-    routed_count = 0
-    pt_context = contexts.get("PT")
-    context_items = {
-        item.get("func_id"): item
-        for item in (pt_context or {}).get("related_items", [])
-        if isinstance(item, dict) and isinstance(item.get("func_id"), str)
-    } if isinstance(pt_context, dict) else {}
-
-    for item in pt_items:
-        decision = {
-            "func_id": item.get("func_id"),
-            "func_name": item.get("func_name", ""),
-            "is_hara": True,
-        }
-        route = resolve_pt_function_level_analysis_unit(intermediate, decision)
-        context_item = context_items.get(item.get("func_id"))
-        if not route or not isinstance(context_item, dict):
+    eligible_by_domain: dict[str, list[dict[str, Any]]] = {}
+    for item in related_items:
+        if not isinstance(item, dict) or not any(
+            sub.get("s1_rule_is_hara") is True
+            for sub in item.get("sub_functions", []) if isinstance(sub, dict)
+        ):
             continue
-
-        routed_count += 1
-        context_item["raw_resolution_status"] = context_item.get("resolution_status")
-        context_item["raw_unresolved_feature_count"] = context_item.get("unresolved_feature_count", 0)
-        context_item["raw_ambiguous_feature_count"] = context_item.get("ambiguous_feature_count", 0)
-        context_item["effective_routing_status"] = "exact_locked_by_function_case_set"
-        context_item["case_set_id"] = route.get("case_set_id")
-        context_item["source_function_key"] = route.get("source_function_key")
-        context_item["analysis_unit_id"] = route.get("analysis_unit_id")
-        context_item["resolution_status"] = "exact_known"
-        context_item["unresolved_feature_count"] = 0
-        context_item["ambiguous_feature_count"] = 0
-        context_item["agent_action_required"] = False
-
-        sub_by_id = {
-            sub.get("feature_list_id"): sub
-            for sub in item.get("sub_functions", [])
-            if isinstance(sub, dict) and sub.get("feature_list_id")
-        }
-        for feature in context_item.get("features", []):
-            if not isinstance(feature, dict):
+        domain = canonical_domain_pack_code(item.get("domain", ""))
+        if not domain:
+            continue
+        try:
+            pack = load_domain_pack(domain)
+        except ValueError:
+            continue
+        catalog = pack.get("case_library_catalog")
+        if isinstance(catalog, dict) and isinstance(catalog.get("cases"), list) and catalog.get("cases"):
+            eligible_by_domain.setdefault(domain, []).append(item)
+    routed_count = 0
+    eligible_count = sum(len(items) for items in eligible_by_domain.values())
+    for domain, domain_items in eligible_by_domain.items():
+        context = contexts.get(domain) or contexts.get("P" if domain == "PT" else domain)
+        context_items = {
+            item.get("func_id"): item
+            for item in (context or {}).get("related_items", [])
+            if isinstance(item, dict) and isinstance(item.get("func_id"), str)
+        } if isinstance(context, dict) else {}
+        routed_domain_items = 0
+        for item in domain_items:
+            decision = {"func_id": item.get("func_id"), "func_name": item.get("func_name", ""), "is_hara": True}
+            route = resolve_function_level_analysis_unit(intermediate, decision)
+            context_item = context_items.get(item.get("func_id"))
+            if not route or not isinstance(context_item, dict):
                 continue
-            feature_id = feature.get("feature_list_id")
-            sub = sub_by_id.get(feature_id, {})
-            is_hara = sub.get("s1_rule_is_hara") is True
-            feature["raw_evidence_status"] = feature.get("evidence_status")
-            feature["raw_disposition"] = feature.get("disposition")
-            feature["raw_covered_by"] = feature.get("covered_by")
-            feature["raw_semantic_status"] = feature.get("semantic_status")
-            feature["effective_routing_status"] = "exact_locked_by_function_case_set"
-            feature["evidence_status"] = "exact_known"
-            feature["effective_evidence_status"] = "exact_known"
-            feature["disposition"] = "covered_by" if is_hara else "exclude"
-            feature["covered_by"] = route.get("analysis_unit_id") if is_hara else None
-            feature["effective_analysis_unit_id"] = route.get("analysis_unit_id") if is_hara else None
-            feature["reason_code"] = "PT_FUNCTION_CASE_SET_EXACT"
-            feature["agent_action_required"] = False
+            routed_count += 1; routed_domain_items += 1
+            context_item["raw_resolution_status"] = context_item.get("resolution_status")
+            context_item["raw_unresolved_feature_count"] = context_item.get("unresolved_feature_count", 0)
+            context_item["raw_ambiguous_feature_count"] = context_item.get("ambiguous_feature_count", 0)
+            context_item["effective_routing_status"] = "exact_locked_by_function_case_set"
+            context_item["case_set_id"] = route.get("case_set_id")
+            context_item["source_function_key"] = route.get("source_function_key")
+            context_item["analysis_unit_id"] = route.get("analysis_unit_id")
+            context_item["resolution_status"] = "exact_known"
+            context_item["unresolved_feature_count"] = 0
+            context_item["ambiguous_feature_count"] = 0
+            context_item["agent_action_required"] = False
+            sub_by_id = {sub.get("feature_list_id"): sub for sub in item.get("sub_functions", []) if isinstance(sub, dict) and sub.get("feature_list_id")}
+            for feature in context_item.get("features", []):
+                if not isinstance(feature, dict):
+                    continue
+                sub = sub_by_id.get(feature.get("feature_list_id"), {})
+                is_hara = sub.get("s1_rule_is_hara") is True
+                feature["raw_evidence_status"] = feature.get("evidence_status")
+                feature["raw_disposition"] = feature.get("disposition")
+                feature["raw_covered_by"] = feature.get("covered_by")
+                feature["raw_semantic_status"] = feature.get("semantic_status")
+                feature["effective_routing_status"] = "exact_locked_by_function_case_set"
+                feature["evidence_status"] = "exact_known"
+                feature["effective_evidence_status"] = "exact_known"
+                feature["disposition"] = "covered_by" if is_hara else "exclude"
+                feature["covered_by"] = route.get("analysis_unit_id") if is_hara else None
+                feature["effective_analysis_unit_id"] = route.get("analysis_unit_id") if is_hara else None
+                feature["reason_code"] = "PT_FUNCTION_CASE_SET_EXACT" if domain == "PT" else "FUNCTION_CASE_SET_EXACT"
+                feature["agent_action_required"] = False
+        if isinstance(context, dict) and domain_items and routed_domain_items == len(domain_items):
+            context["raw_resolution_status"] = context.get("resolution_status")
+            context["raw_unresolved_feature_count"] = context.get("unresolved_feature_count", 0)
+            context["raw_ambiguous_feature_count"] = context.get("ambiguous_feature_count", 0)
+            context["effective_routing_status"] = "exact_locked_by_function_case_set"
+            context["resolution_status"] = "exact_known"
+            context["unresolved_feature_count"] = 0
+            context["ambiguous_feature_count"] = 0
+            context["agent_action_required"] = False
+    return {"routed_count": routed_count, "eligible_count": eligible_count}
 
-    # The aggregate PT context is exact for the HARA-positive functions only when
-    # every such function has a unique, source-hinted case-set route.
-    if isinstance(pt_context, dict) and pt_items and routed_count == len(pt_items):
-        pt_context["raw_resolution_status"] = pt_context.get("resolution_status")
-        pt_context["raw_unresolved_feature_count"] = pt_context.get("unresolved_feature_count", 0)
-        pt_context["raw_ambiguous_feature_count"] = pt_context.get("ambiguous_feature_count", 0)
-        pt_context["effective_routing_status"] = "exact_locked_by_function_case_set"
-        pt_context["resolution_status"] = "exact_known"
-        pt_context["unresolved_feature_count"] = 0
-        pt_context["ambiguous_feature_count"] = 0
-        pt_context["agent_action_required"] = False
 
-    return {"routed_count": routed_count, "eligible_count": len(pt_items)}
-
-def resolve_pt_function_level_analysis_unit(
+def resolve_function_level_analysis_unit(
     intermediate: dict[str, Any], s1_decision: dict[str, Any]
 ) -> dict[str, str] | None:
-    """按唯一 PT 整车功能名称锁定整车功能级案例。
-
-    子功能只负责 S1/HARA 范围和追溯；它们的语义覆盖状态不再阻断
-    已由整车功能名称唯一命中的案例预填。
-    """
+    """按唯一域内嵌案例集锁定整车功能级分析单元。"""
     func_id = s1_decision.get("func_id")
     if not isinstance(func_id, str) or s1_decision.get("is_hara") is not True:
         return None
     item = _intermediate_items(intermediate).get(func_id)
-    if not isinstance(item, dict) or item.get("domain") not in {"P", "PT"}:
+    if not isinstance(item, dict):
         return None
-
-    pack = load_domain_pack(item["domain"])
-    semantic = resolve_pt_function_semantics(item.get("func_name", ""), pack, [])
+    domain = canonical_domain_pack_code(item.get("domain", ""))
+    if not domain:
+        return None
+    pack = load_domain_pack(domain)
+    catalog = pack.get("case_library_catalog")
+    if not isinstance(catalog, dict) or not isinstance(catalog.get("cases"), list) or not catalog.get("cases"):
+        return None
+    semantic = resolve_domain_function_semantics(item.get("func_name", ""), pack, [])
     if semantic.get("status") != "resolved":
         return None
     family = semantic.get("canonical_function_family")
     if not isinstance(family, str) or not family:
         return None
-    units = [
-        unit for unit in pack.get("analysis_catalog", {}).get("analysis_units", [])
-        if isinstance(unit, dict) and unit.get("canonical_function_family") == family
-    ]
-    case_contract = _pt_case_set_contract(pack, family, intermediate)
+    units = [unit for unit in pack.get("analysis_catalog", {}).get("analysis_units", []) if isinstance(unit, dict) and unit.get("canonical_function_family") == family]
+    case_contract = _case_set_contract(pack, family, intermediate)
     if len(units) != 1 or not case_contract:
         return None
     return {
-        "domain": pack["domain"],
-        "analysis_unit_id": units[0].get("analysis_unit_id"),
-        "func_id": func_id,
-        "func_name": s1_decision.get("func_name", item.get("func_name", "")),
-        "evidence_status": "exact_known",
-        "canonical_function_family": family,
-        "source_function_key": case_contract["source_function_key"],
-        "case_set_id": case_contract["case_set_id"],
+        "domain": pack["domain"], "analysis_unit_id": units[0].get("analysis_unit_id"),
+        "func_id": func_id, "func_name": s1_decision.get("func_name", item.get("func_name", "")),
+        "evidence_status": "exact_known", "canonical_function_family": family,
+        "source_function_key": case_contract["source_function_key"], "case_set_id": case_contract["case_set_id"],
         "scope": "function_level",
     }
 
@@ -425,7 +411,7 @@ def resolve_known_analysis_unit(
 ) -> dict[str, str] | None:
     """解析可由 Domain Pack 精确锁定的分析单元。"""
     return (
-        resolve_pt_function_level_analysis_unit(intermediate, s1_decision)
+        resolve_function_level_analysis_unit(intermediate, s1_decision)
         or _resolve_analysis_unit(intermediate, s1_decision, evidence_status="exact_known")
     )
 
@@ -446,8 +432,8 @@ def known_s2_contracts(intermediate: dict[str, Any], s1: dict[str, Any]) -> dict
         if not resolved:
             continue
         pack = load_domain_pack(resolved["domain"])
-        if resolved.get("scope") == "function_level" and resolved["domain"] == "PT":
-            cases = _pt_case_set_contract(pack, resolved["canonical_function_family"], intermediate)
+        if resolved.get("scope") == "function_level":
+            cases = _case_set_contract(pack, resolved["canonical_function_family"], intermediate)
             modes = sorted(
                 {_case_mode(case) for case in (cases or {}).get("cases", []) if _case_mode(case)},
                 key=lambda value: (
@@ -473,7 +459,7 @@ def compatible_s2_contracts(intermediate: dict[str, Any], s1: dict[str, Any]) ->
             continue
         # PT 已按整车功能级 exact 路由时，不再把其中若干子功能的
         # compatible 语义单元重复暴露给 Agent。
-        if resolve_pt_function_level_analysis_unit(intermediate, decision):
+        if resolve_function_level_analysis_unit(intermediate, decision):
             continue
         resolved = resolve_compatible_analysis_unit(intermediate, decision)
         if not resolved:
@@ -585,14 +571,15 @@ def generate_known_s3(intermediate: dict[str, Any], s1: dict[str, Any], s2: dict
             pending.append(func_id)
             continue
         pack = load_domain_pack(contract["domain"])
-        if contract.get("scope") == "function_level" and contract["domain"] == "PT":
-            case_contract = _pt_case_set_contract(pack, contract["canonical_function_family"], intermediate)
+        if contract.get("scope") == "function_level":
+            case_contract = _case_set_contract(pack, contract["canonical_function_family"], intermediate)
             if not case_contract or case_contract["case_set_id"] != contract.get("case_set_id"):
                 pending.append(func_id)
                 continue
-            groups, group_error = _group_pt_cases(
+            groups, group_error = _group_domain_cases(
                 case_contract["cases"], contract["selected_modes"],
                 pack.get("safety_goal_catalog", {}).get("hazard_catalog", {}),
+                contract["domain"],
             )
             if group_error:
                 pending.append(func_id)
@@ -604,7 +591,8 @@ def generate_known_s3(intermediate: dict[str, Any], s1: dict[str, Any], s2: dict
             for mode in contract["selected_modes"]:
                 mode_anomalies = []
                 for group in groups_by_mode.get(mode, []):
-                    failure_id = f"P_MF_{function_numbers[func_id]}_{failure_sequence:02d}"
+                    output_prefix = "P" if contract["domain"] == "PT" else contract["domain"]
+                    failure_id = f"{output_prefix}_MF_{function_numbers[func_id]}_{failure_sequence:02d}"
                     failure_sequence += 1
                     hazards = group["hazards"]
                     not_applicable = bool(hazards) and all(
@@ -850,3 +838,14 @@ def validate_known_s3_contract(intermediate: dict[str, Any], s1: dict[str, Any],
                 if actual_hazard_keys != expected_hazard_keys:
                     errors.append(f"[Domain Pack S3] {key[0]} / {key[1]} / {expected_anomaly['failure_id']} 的危害描述或 associated_hara 被修改")
     return errors
+
+
+def apply_effective_pt_case_routes(intermediate: dict[str, Any]) -> dict[str, int]:
+    """兼容入口；新代码请调用 apply_effective_case_routes。"""
+    return apply_effective_case_routes(intermediate)
+
+def resolve_pt_function_level_analysis_unit(
+    intermediate: dict[str, Any], s1_decision: dict[str, Any]
+) -> dict[str, str] | None:
+    """兼容入口；新代码请调用 resolve_function_level_analysis_unit。"""
+    return resolve_function_level_analysis_unit(intermediate, s1_decision)

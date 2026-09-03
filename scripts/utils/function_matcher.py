@@ -81,18 +81,18 @@ def calculate_similarity(name1: str, name2: str) -> float:
     return total_sim
 
 
-def resolve_pt_function_semantics(
+def resolve_domain_function_semantics(
     function_name: str,
-    pt_pack: dict[str, Any],
+    domain_pack: dict[str, Any],
     semantic_texts: list[str] | None = None,
 ) -> dict[str, Any]:
-    """按 PT Pack 的显式别名和语义角色解析功能。
+    """按指定 Domain Pack 的显式别名和语义角色解析功能。
 
     该接口与旧的 ``match_function_in_pt_pack`` 保持分离：旧接口返回历史
     function_id，供迁移期代码兼容；本接口返回 canonical family/role/unit，
     供新的 PT 运行时流程使用。来源 func_id/failure_id 永远不参与匹配。
     """
-    catalog = pt_pack.get("function_catalog", {}) or {}
+    catalog = domain_pack.get("function_catalog", {}) or {}
     aliases = catalog.get("known_input_aliases", {}) or {}
     families = aliases.get("families", {}) if isinstance(aliases, dict) else {}
     matchers = catalog.get("function_matchers", []) or []
@@ -185,7 +185,7 @@ def resolve_pt_function_semantics(
             "role_evidence": role_evidence,
         }
     role = roles[0] if roles else default_role
-    analysis_catalog = pt_pack.get("analysis_catalog", {}) or {}
+    analysis_catalog = domain_pack.get("analysis_catalog", {}) or {}
     units = [
         unit for unit in analysis_catalog.get("analysis_units", [])
         if isinstance(unit, dict)
@@ -214,6 +214,15 @@ def resolve_pt_function_semantics(
         "candidates": candidates,
         "role_evidence": role_evidence,
     }
+
+
+def resolve_pt_function_semantics(
+    function_name: str,
+    pt_pack: dict[str, Any],
+    semantic_texts: list[str] | None = None,
+) -> dict[str, Any]:
+    """兼容包装：按 PT Domain Pack 解析功能语义。"""
+    return resolve_domain_function_semantics(function_name, pt_pack, semantic_texts)
 
 
 def match_function_in_pt_pack(

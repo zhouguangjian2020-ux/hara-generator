@@ -406,7 +406,7 @@ def _validate_domain_pack_matrix_lock(domain: str, hazards: list[dict]) -> list[
             if event.get("vehicle_hazard_id") != expected_event.get("vehicle_hazard_id") or event.get("vehicle_hazard_id") != vehicle_hazard_id:
                 issues.append(("error", f"hazard[{index}] {scenario_id} 的 vehicle_hazard_id 被修改"))
             for field in fields:
-                # 新版 PT Pack 可能包含整车安全目标字段；旧域 Pack 没有
+                # 新版 案例驱动 Pack 可能包含整车安全目标字段；旧域 Pack 没有
                 # 这些字段时保持跨域兼容，不把“缺少字段”误判为被修改。
                 if field not in expected_event:
                     continue
@@ -551,7 +551,7 @@ def _validate_hazard_mapping_contract(domain: str, hazards: list[dict]) -> list[
 
 
 def _needs_review_agent_task() -> dict:
-    """返回 PT 未覆盖危害组的受控 Agent 任务合同。
+    """返回案例驱动域未覆盖危害组的受控 Agent 任务合同。
 
     该合同描述 Agent 需要完成的工程判断及不可触碰的追溯边界。它不是
     自动生成事件或评定 S/E/C 的脚本：事件、场景和风险评定仍必须由当前项目
@@ -596,7 +596,7 @@ def _needs_review_agent_task() -> dict:
 
 
 def _validate_needs_review_agent_task(hazards: list[dict]) -> list[tuple[str, str]]:
-    """保证 PT needs_review 仍以受控表单交给 Agent，而非开放式 JSON 修复。"""
+    """保证 needs_review 仍以受控表单交给 Agent，而非开放式 JSON 修复。"""
     issues: list[tuple[str, str]] = []
     expected = _needs_review_agent_task()
     for index, hazard in enumerate(hazards):
@@ -1115,17 +1115,30 @@ def prepare(s3_path: str, output_path: str = "s4_hara_skeleton.json",
                 pre_safe_state = get_safe_state(ftype, hazard_category) if ftype else None
                 pre_ftti = get_ftti(ftype, failure_mode) if ftype else None
 
-                # PT 优先使用 Domain Pack 精确/compatible 合同；未命中时只允许
+                # 已迁移域优先使用 Domain Pack 精确/compatible 合同；未命中时只允许
                 # 案例库 v2 的跨项目语义候选，不得退化到旧场景总表、全局 SEC
                 # 数据库或其他域硬编码。similar/template 始终保持可编辑。
-                pt_pack_controlled = canonical_domain_pack_code(domain) == "PT"
+                try:
+                    domain_pack = load_domain_pack(domain)
+                except ValueError:
+                    domain_pack = {}
+                case_pack_controlled = bool(
+                    isinstance(domain_pack.get("case_library_catalog"), dict)
+                    and domain_pack["case_library_catalog"].get("cases")
+                )
+                source_case_locked_hint = (
+                    entry.get("source") == "case_library"
+                    and isinstance(anom.get("case_ids"), list)
+                    and bool(anom.get("case_ids"))
+                )
 
-                # Domain Pack 精确矩阵优先级最高。命中时完全跳过跨域场景表、
+                # S3 已锁定来源案例时，案例来源优先于矩阵/compatible；否则按
+                # Domain Pack exact matrix → compatible → semantic case 的顺序。命中时完全跳过跨域场景表、
                 # SEC 参考库和硬编码规则，避免不必要的加载与近似匹配。
-                matrix_prefill = None if skip else _domain_pack_matrix_prefill(domain, entry, anom)
-                compatible_prefill = None if (skip or matrix_prefill is not None) else _domain_pack_compatible_prefill(domain, entry, anom)
+                matrix_prefill = None if (skip or source_case_locked_hint) else _domain_pack_matrix_prefill(domain, entry, anom)
+                compatible_prefill = None if (skip or source_case_locked_hint or matrix_prefill is not None) else _domain_pack_compatible_prefill(domain, entry, anom)
 
-                # ---- PT/其他域统一使用案例库 v2 语义预填 ----
+                # ---- 所有域统一使用案例库 v2 语义预填 ----
                 # Domain Pack 的 exact/compatible 合同已经在上方优先处理。
                 # 未命中时，所有域都只通过各自的 v2 案例库做语义候选匹配；
                 # 不再使用旧 PT.json 的功能名/来源 ID 作为匹配键。
@@ -1269,7 +1282,7 @@ def prepare(s3_path: str, output_path: str = "s4_hara_skeleton.json",
 
                 # ---- 第一级：查当前旧场景速查表（仅旧域或尚未迁入 Pack 的 PT 项）----
                 prefill = source_case_prefill or case_library_prefill or (
-                    None if (skip or pt_pack_controlled or matrix_prefill is not None or compatible_prefill is not None) else lookup_scenarios(
+                    None if (skip or case_pack_controlled or matrix_prefill is not None or compatible_prefill is not None) else lookup_scenarios(
                         domain, func_name, failure_mode, anom_desc
                     )
                 )
@@ -1277,7 +1290,7 @@ def prepare(s3_path: str, output_path: str = "s4_hara_skeleton.json",
                     lookup_hits += 1
 
                 # ---- 第二级：查硬编码功能类型（仅无精确矩阵合同的域）----
-                if not prefill and not skip and not pt_pack_controlled and matrix_prefill is None and compatible_prefill is None and ftype:
+                if not prefill and not skip and not case_pack_controlled and matrix_prefill is None and compatible_prefill is None and ftype:
                     prefill = get_prefill_data(ftype, anom_desc, failure_mode, hz_desc)
 
                 prefill_scenarios = []
@@ -1380,13 +1393,13 @@ def prepare(s3_path: str, output_path: str = "s4_hara_skeleton.json",
 
                 # compatible 基线优先于旧大表/硬编码，但 Agent 可以按项目差异修改。
                 if compatible_prefill is not None:
-                    prefill_guidance = "由 PT Domain Pack 的 compatible 参考基线预填；只允许按当前输入与工程项目差异修改，并在备注说明。"
+                    prefill_guidance = "由 当前域 Domain Pack 的 compatible 参考基线预填；只允许按当前输入与工程项目差异修改，并在备注说明。"
                     prefilled_events = compatible_prefill["events"]
                     prefill_scenarios = [event["scenario"] for event in prefilled_events]
-                elif pt_pack_controlled and not skip and not case_library_prefill:
+                elif case_pack_controlled and not skip and not case_library_prefill:
                     prefill_guidance = (
-                        "PT Domain Pack 尚无该 failure_id 的 compatible 场景/S/E/C 基线；"
-                        "必须由 Agent 按当前 PT 输入推理并标注 needs_review，禁止套用旧场景表或其他域资产。"
+                        f"{domain} Domain Pack 尚无该 failure_id 的 compatible 场景/S/E/C 基线；"
+                        f"必须由 Agent 按当前 {domain} 输入推理并标注 needs_review，禁止套用旧场景表或其他域资产。"
                     )
 
                 # 精确矩阵在旧查询之前已完成解析；此处只将其规范化为 S4 受控字段。
@@ -1524,8 +1537,8 @@ def prepare(s3_path: str, output_path: str = "s4_hara_skeleton.json",
                         "compatible_baseline": {"events": deepcopy(hazard_group["events"])},
                         "compatible_baseline_changes": [],
                     })
-                elif pt_pack_controlled:
-                    # Pack 未覆盖时绝不套用旧表。Agent 必须创建 PT 项目专属事件，
+                elif case_pack_controlled:
+                    # Pack 未覆盖时绝不套用旧表。Agent 必须创建当前域项目专属事件，
                     # 并显式留下 needs_review 的完成说明。
                     hazard_group.update({
                         "evidence_status": "needs_review",
@@ -1593,19 +1606,22 @@ def prepare(s3_path: str, output_path: str = "s4_hara_skeleton.json",
         for hazard in hazards
         if hazard.get("agent_action") == "review_compatible_baseline"
     )
-    is_pt_pack = canonical_domain_pack_code(domain) == "PT"
-    if is_pt_pack:
+    try:
+        is_case_pack = bool(load_domain_pack(domain).get("case_library_catalog", {}).get("cases"))
+    except ValueError:
+        is_case_pack = False
+    if is_case_pack:
         print(
-            f"[S4 prepare] PT Pack 基线: {compatible_groups} 个 compatible 危害组, "
+            f"[S4 prepare] {domain} Pack 基线: {compatible_groups} 个 compatible 危害组, "
             f"{compatible_events} 条基线事件"
             + ("；Agent 必须确认一致性或逐项登记差异。" if compatible_groups else "。")
         )
         print(
-            f"[S4 prepare] PT Pack 未覆盖: {len(needs_review_groups)} 个危害组；"
+            f"[S4 prepare] {domain} Pack 未覆盖: {len(needs_review_groups)} 个危害组；"
             f"其中案例库 v2 候选 {len(case_candidate_groups)} 个，空白待创建 {len(no_prefill)} 个。"
         )
         if matrix_locked:
-            print(f"[S4 prepare] PT Pack 精确锁定: {matrix_locked} 个危害组，Agent 不得编辑。")
+            print(f"[S4 prepare] {domain} Pack 精确锁定: {matrix_locked} 个危害组，Agent 不得编辑。")
     else:
         print(
             f"[S4 prepare] 代码预填: {prefilled} 个危害组, {prefilled_events} 个标准场景已锁定"
@@ -1650,16 +1666,16 @@ def prepare(s3_path: str, output_path: str = "s4_hara_skeleton.json",
             f"[S4 prepare] 警告: {len(functions_requiring_agent_defaults)} 个功能未识别类型，"
             f"且仍有未锁定事件，安全状态/FTTI 需 Agent 评定: {functions_requiring_agent_defaults}"
         )
-    if no_prefill and not is_pt_pack:
+    if no_prefill and not is_case_pack:
         print(f"[S4 prepare] 警告: {len(no_prefill)} 个危害组未匹配标准场景集，Agent 需自行展开: {no_prefill[:5]}")
     if active and locked_groups == active:
         print(
             "[S4 prepare] 所有活跃危害均由 Domain Pack 精确矩阵或 S3 来源案例锁定；"
             "Agent 不得编辑，可直接执行 hara validate。"
         )
-    elif is_pt_pack:
+    elif is_case_pack:
         print(
-            "[S4 prepare] PT 处理规则：compatible 基线不得静默改写；"
+            "[S4 prepare] 案例驱动域处理规则：compatible 基线不得静默改写；"
             "案例库 similar/template 只能作为可编辑候选；无候选项才需新建事件，"
             "所有 needs_review 项均须完成工程说明。"
         )
