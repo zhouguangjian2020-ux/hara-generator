@@ -5,7 +5,7 @@
   "status": "bootstrap",
   "provenance": {
     "migration_stage": "P0-1",
-    "scenario_source": "../scenarios/BD.json",
+    "scenario_source": "../../scenarios/BD.json",
     "reference_policy": "参考数据仅用于离线沉淀语义知识；运行时不读取参考 Excel 的布局、列数或非目标 Sheet。"
   },
   "function_catalog": {
@@ -493,3 +493,4 @@
     "unknown_policy": "未知或不兼容功能必须输出明确差异项并要求工程复核；不得静默套用已知基线。"
   }
 }
+

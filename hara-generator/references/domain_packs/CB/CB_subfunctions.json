@@ -1,0 +1,117 @@
+{
+  "schema_version": "domain_subfunction_authority.v1",
+  "domain": "CB",
+  "asset_type": "domain_subfunction_authority",
+  "runtime": {
+    "read_by": "scripts/utils/domain_subfunction_source.py",
+    "source_of_truth": "CB/CB_subfunctions.json",
+    "offline_source_only": "<DOMAIN>_子功能.XLSX"
+  },
+  "source": {
+    "source_file": "C:\\Users\\zhouguangjian\\Downloads\\CB_BRAKE_EPB_提取结果(1).xlsx",
+    "source_sheet": "子功能提取",
+    "source_sha256": "143ca27034fbf9773a4c5df051b01aa8b24cfdea6a5922c9d88d229976e0216c"
+  },
+  "record_count": 8,
+  "function_count": 1,
+  "conflict_count": 0,
+  "conflicts": [],
+  "records": [
+    {
+      "source_row": 2,
+      "record_id": "CB_sfunc_0001",
+      "domain": "CB",
+      "function_name": "电子驻车制动",
+      "feature_name": "静态拉起,实现驻车",
+      "hara": true,
+      "remark": "",
+      "source": "ALL-HARA_FUSA-200-GPFA-H102______FUSA HARA CH BRAKE EPB_normalized",
+      "filled_by": "周广鉴",
+      "filled_at": "2026-09-08 21:57:25"
+    },
+    {
+      "source_row": 3,
+      "record_id": "CB_sfunc_0002",
+      "domain": "CB",
+      "function_name": "电子驻车制动",
+      "feature_name": "静态拉起,实现驻车解除",
+      "hara": true,
+      "remark": "",
+      "source": "ALL-HARA_FUSA-200-GPFA-H102______FUSA HARA CH BRAKE EPB_normalized",
+      "filled_by": "周广鉴",
+      "filled_at": "2026-09-08 21:57:25"
+    },
+    {
+      "source_row": 4,
+      "record_id": "CB_sfunc_0003",
+      "domain": "CB",
+      "function_name": "电子驻车制动",
+      "feature_name": "EPB内部驻车逻辑功能",
+      "hara": true,
+      "remark": "",
+      "source": "ALL-HARA_FUSA-200-GPFA-H102______FUSA HARA CH BRAKE EPB_normalized",
+      "filled_by": "周广鉴",
+      "filled_at": "2026-09-08 21:57:25"
+    },
+    {
+      "source_row": 5,
+      "record_id": "CB_sfunc_0004",
+      "domain": "CB",
+      "function_name": "电子驻车制动",
+      "feature_name": "动态制动",
+      "hara": true,
+      "remark": "",
+      "source": "ALL-HARA_FUSA-200-GPFA-H102______FUSA HARA CH BRAKE EPB_normalized",
+      "filled_by": "周广鉴",
+      "filled_at": "2026-09-08 21:57:25"
+    },
+    {
+      "source_row": 6,
+      "record_id": "CB_sfunc_0005",
+      "domain": "CB",
+      "function_name": "电子驻车制动",
+      "feature_name": "外部请求响应",
+      "hara": true,
+      "remark": "",
+      "source": "ALL-HARA_FUSA-200-GPFA-H102______FUSA HARA CH BRAKE EPB_normalized",
+      "filled_by": "周广鉴",
+      "filled_at": "2026-09-08 21:57:25"
+    },
+    {
+      "source_row": 7,
+      "record_id": "CB_sfunc_0006",
+      "domain": "CB",
+      "function_name": "电子驻车制动",
+      "feature_name": "车辆特殊模式",
+      "hara": false,
+      "remark": "此功能仅为IBS的特殊模式,不进行具体分析",
+      "source": "ALL-HARA_FUSA-200-GPFA-H102______FUSA HARA CH BRAKE EPB_normalized",
+      "filled_by": "周广鉴",
+      "filled_at": "2026-09-08 21:57:25"
+    },
+    {
+      "source_row": 8,
+      "record_id": "CB_sfunc_0007",
+      "domain": "CB",
+      "function_name": "电子驻车制动",
+      "feature_name": "液压支持HPS",
+      "hara": true,
+      "remark": "",
+      "source": "ALL-HARA_FUSA-200-GPFA-H102______FUSA HARA CH BRAKE EPB_normalized",
+      "filled_by": "周广鉴",
+      "filled_at": "2026-09-08 21:57:25"
+    },
+    {
+      "source_row": 9,
+      "record_id": "CB_sfunc_0008",
+      "domain": "CB",
+      "function_name": "电子驻车制动",
+      "feature_name": "驻车制动辅助保持",
+      "hara": true,
+      "remark": "",
+      "source": "ALL-HARA_FUSA-200-GPFA-H102______FUSA HARA CH BRAKE EPB_normalized",
+      "filled_by": "周广鉴",
+      "filled_at": "2026-09-08 21:57:25"
+    }
+  ]
+}

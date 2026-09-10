@@ -1,0 +1,412 @@
+{
+  "schema_version": "1.0",
+  "domain": "ET",
+  "domain_name": "座舱信息域",
+  "status": "bootstrap",
+  "provenance": {
+    "migration_stage": "P0-1",
+    "scenario_source": "../../scenarios/ET.json",
+    "reference_policy": "参考数据仅用于离线沉淀语义知识；运行时不读取参考 Excel 的布局、列数或非目标 Sheet。"
+  },
+  "function_catalog": {
+    "function_matchers": [],
+    "semantic_roles": {},
+    "scope_rules": [],
+    "known_input_aliases": {}
+  },
+  "analysis_catalog": {
+    "analysis_units": [],
+    "failure_mode_rules": {},
+    "hazop_patterns": []
+  },
+  "risk_catalog": {
+    "scenario_sets": {},
+    "scenario_lookup": {
+      "info_display": {
+        "keywords": [
+          "HUD",
+          "仪表",
+          "信息显示",
+          "车速表",
+          "电量表",
+          "Ready灯"
+        ],
+        "failure_modes": {
+          "丢失": {
+            "anomaly_keywords": [
+              "Ready灯显示丢失",
+              "开机动画显示丢失",
+              "车速表显示丢失",
+              "电量表显示丢失",
+              "功率表、总里程、时间、温度显示丢失",
+              "驾驶模式显示丢失",
+              "HUD功能无法开启",
+              "HUD功能无法关闭"
+            ],
+            "scenarios": [
+              "车辆原地启动",
+              "车辆正常运行中",
+              "车辆行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "信息显示丢失（车速/电量/Ready灯等）。驾驶员可通过其他方式获取信息或停车检查，多数S=0-1，ASIL多为QM。车速表丢失在高速场景需评估S=1-2。",
+            "source_anomalies": [
+              "Ready灯显示丢失",
+              "开机动画显示丢失",
+              "车速表显示丢失",
+              "电量表显示丢失",
+              "功率表、总里程、时间、温度显示丢失",
+              "驾驶模式显示丢失",
+              "HUD功能无法开启",
+              "HUD功能无法关闭"
+            ]
+          },
+          "非预期": {
+            "anomaly_keywords": [
+              "Ready灯非预期显示",
+              "开机动画非预期显示",
+              "驾驶模式非预期显示",
+              "HUD显示信息非预期开启",
+              "HUD显示信息非预期关闭"
+            ],
+            "scenarios": [
+              "车辆原地IG on 或充电中",
+              "车辆行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "信息非预期显示/关闭。可能分散驾驶员注意力，S=0-1，QM。",
+            "source_anomalies": [
+              "Ready灯非预期显示",
+              "开机动画非预期显示",
+              "驾驶模式非预期显示",
+              "HUD显示信息非预期开启",
+              "HUD显示信息非预期关闭"
+            ]
+          },
+          "过大": {
+            "anomaly_keywords": [
+              "车速表显示车速过大",
+              "电量表显示电量过高",
+              "功率表、总里程、时间、温度显示过量",
+              "HUD显示角度、亮度及高度调节过量"
+            ],
+            "scenarios": [
+              "车辆行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "显示值过大（车速/电量过高）。可能导致驾驶员误判，S=0-1，QM。",
+            "source_anomalies": [
+              "车速表显示车速过大",
+              "电量表显示电量过高",
+              "功率表、总里程、时间、温度显示过量",
+              "HUD显示角度、亮度及高度调节过量"
+            ]
+          },
+          "过小": {
+            "anomaly_keywords": [
+              "车速表显示车速过小",
+              "电量表显示电量过低",
+              "HUD显示角度、亮度及高度调节不足"
+            ],
+            "scenarios": [
+              "车辆行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "显示值过小（车速/电量过低）。可能导致驾驶员误判，S=0-1，QM。",
+            "source_anomalies": [
+              "车速表显示车速过小",
+              "电量表显示电量过低",
+              "HUD显示角度、亮度及高度调节不足"
+            ]
+          },
+          "其他": {
+            "anomaly_keywords": [
+              "功率表、总里程、时间、温度显示过少"
+            ],
+            "scenarios": [
+              "车辆行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "",
+            "source_anomalies": [
+              "功率表、总里程、时间、温度显示过少"
+            ]
+          }
+        }
+      },
+      "other": {
+        "keywords": [
+          "行驶记录仪",
+          "账户设置",
+          "账户登录"
+        ],
+        "failure_modes": {
+          "丢失": {
+            "anomaly_keywords": [
+              "账户无法注册及登录",
+              "账户无法退出或删除",
+              "行驶记录功能丢失",
+              "视频文件查看功能丢失"
+            ],
+            "scenarios": [
+              "车辆启动后，原地静止",
+              "车辆运行中",
+              "车辆静止中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "行驶记录仪/账户功能丢失。不影响驾驶安全，S=0，QM。",
+            "source_anomalies": [
+              "账户无法注册及登录",
+              "账户无法退出或删除",
+              "行驶记录功能丢失",
+              "视频文件查看功能丢失"
+            ]
+          },
+          "非预期": {
+            "anomaly_keywords": [
+              "账户非预期退出或删除",
+              "非预期启动行驶记录功能"
+            ],
+            "scenarios": [
+              "停车后下电",
+              "车辆启动后，原地静止",
+              "车辆行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "非预期启动/退出。S=0，QM。",
+            "source_anomalies": [
+              "账户非预期退出或删除",
+              "非预期启动行驶记录功能"
+            ]
+          }
+        }
+      },
+      "monitoring": {
+        "keywords": [
+          "驾驶员监测",
+          "乘员监测",
+          "疲劳监测"
+        ],
+        "failure_modes": {
+          "丢失": {
+            "anomaly_keywords": [
+              "乘员监测功能丢失",
+              "驾驶员监测功能丢失"
+            ],
+            "scenarios": [
+              "车辆下电",
+              "车辆下电，后排有人",
+              "车辆行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "驾驶员/乘员监测丢失。驾驶员监测丢失可能导致疲劳驾驶未预警，S=1-2，需评估E/C。乘员监测丢失影响儿童遗留检测，S=1。",
+            "source_anomalies": [
+              "乘员监测功能丢失",
+              "驾驶员监测功能丢失"
+            ]
+          },
+          "非预期": {
+            "anomaly_keywords": [
+              "乘员监测功能非预期开启",
+              "驾驶员监测功能非预期开启"
+            ],
+            "scenarios": [
+              "车辆运行中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "监测功能非预期开启。可能误报警，S=0，QM。",
+            "source_anomalies": [
+              "乘员监测功能非预期开启",
+              "驾驶员监测功能非预期开启"
+            ]
+          }
+        }
+      },
+      "communication": {
+        "keywords": [
+          "手机互联",
+          "X-call",
+          "远程控制",
+          "紧急求救"
+        ],
+        "failure_modes": {
+          "丢失": {
+            "anomaly_keywords": [
+              "手机互联功能丢失",
+              "远程控制车辆功能丢失",
+              "紧急求救功能丢失"
+            ],
+            "scenarios": [
+              "车辆停止下电",
+              "车辆发生事故",
+              "车辆静止中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "手机互联/远程控制丢失。不影响驾驶安全，S=0，QM。紧急求救（X-call）丢失在事故场景S=2-3，需评估。",
+            "source_anomalies": [
+              "手机互联功能丢失",
+              "远程控制车辆功能丢失",
+              "紧急求救功能丢失"
+            ]
+          },
+          "非预期": {
+            "anomaly_keywords": [
+              "手机互联功能非预期断开",
+              "远程控制非预期中断",
+              "紧急求救功能非预期中断"
+            ],
+            "scenarios": [
+              "车辆发生事故",
+              "车辆运行中",
+              "车辆静止，远程控制作动中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "互联非预期断开/远程控制非预期中断。S=0-1，QM。",
+            "source_anomalies": [
+              "手机互联功能非预期断开",
+              "远程控制非预期中断",
+              "紧急求救功能非预期中断"
+            ]
+          }
+        }
+      },
+      "entertainment": {
+        "keywords": [
+          "中控",
+          "娱乐",
+          "音频播放",
+          "视频播放",
+          "音量"
+        ],
+        "failure_modes": {
+          "丢失": {
+            "anomaly_keywords": [
+              "背景及动画演示丢失",
+              "中控常规信息显示丢失",
+              "音频播放功能丢失",
+              "视频播放功能丢失",
+              "图片显示功能丢失",
+              "娱乐设置功能丢失"
+            ],
+            "scenarios": [
+              "车辆低速行驶中",
+              "车辆启动中",
+              "车辆行驶中，车机系统重启",
+              "车辆运行中",
+              "车辆静止"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "娱乐功能丢失（音频/视频/图片）。不影响驾驶安全，S=0，QM。",
+            "source_anomalies": [
+              "背景及动画演示丢失",
+              "中控常规信息显示丢失",
+              "音频播放功能丢失",
+              "视频播放功能丢失",
+              "图片显示功能丢失",
+              "娱乐设置功能丢失"
+            ]
+          },
+          "非预期": {
+            "anomaly_keywords": [
+              "背景动画非预期退出",
+              "背景动画非预期演示",
+              "音频播放功能非预期退出",
+              "音频播放功能非预期播放",
+              "视频播放功能非预期退出",
+              "视频播放功能非预期播放"
+            ],
+            "scenarios": [
+              "车辆D当行驶中",
+              "车辆中速转弯行驶中",
+              "车辆低速行驶中",
+              "车辆倒车中",
+              "车辆启动中",
+              "车辆运行，音频播放中",
+              "车辆静止",
+              "车辆静止中",
+              "车辆高速公路行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "娱乐功能非预期播放/退出。可能分散注意力，S=0-1，QM。音量过大可能影响驾驶员听到外部警示音。",
+            "source_anomalies": [
+              "背景动画非预期退出",
+              "背景动画非预期演示",
+              "音频播放功能非预期退出",
+              "音频播放功能非预期播放",
+              "视频播放功能非预期退出",
+              "视频播放功能非预期播放"
+            ]
+          },
+          "过大": {
+            "anomaly_keywords": [
+              "音量调整过大"
+            ],
+            "scenarios": [
+              "车辆中速转弯行驶中",
+              "车辆高速公路行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "音量过大。可能掩盖外部警示音（救护车/警笛），S=0-1，QM。",
+            "source_anomalies": [
+              "音量调整过大"
+            ]
+          },
+          "过小": {
+            "anomaly_keywords": [
+              "音量调整过小"
+            ],
+            "scenarios": [
+              "车辆行驶中"
+            ],
+            "safety_goal": null,
+            "safe_state": null,
+            "ftti": null,
+            "guidance": "音量过小。不影响安全，S=0，QM。",
+            "source_anomalies": [
+              "音量调整过小"
+            ]
+          }
+        }
+      }
+    },
+    "event_matrix": []
+  },
+  "safety_goal_catalog": {
+    "hazard_families": {},
+    "rules": [],
+    "hazard_catalog": {}
+  },
+  "quality_contract": {
+    "known_exact_requirements": [],
+    "unknown_policy": "未知或不兼容功能必须输出明确差异项并要求工程复核；不得静默套用已知基线。"
+  }
+}
+
